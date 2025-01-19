@@ -200,7 +200,7 @@ const actions = {
             content: {
               name: "为你推荐",
               color: "#000000",
-              image: "https://file.shopro.top/imgs/title2.png",
+              image: "https://file.shopro.top/imgs/title1.png",
             },
             decorate_id: 5791,
           },
@@ -216,7 +216,7 @@ const actions = {
             name: "标题栏",
             content: {
               name: "限时秒杀",
-              color: "#000000",
+              color: "red",
               image: "https://file.shopro.top/imgs/title2.png",
             },
             decorate_id: 57911,

@@ -54,7 +54,7 @@
 		</view>
 		<button v-show="total > perPage" class="u-reset-button refresh-btn u-m-y-20 u-flex u-col-center u-row-center" @tap.stop="loadMore">
 			<text class="u-m-r-6 u-iconfont uicon-reload" style="font-size: 28rpx;color: #999" :class="{ 'refresh-active': isRefresh }"></text>
-			{{ listParams.page >= lastPage ? '收起' : '加载更多' }}
+			{{ listParams.page >= lastPage ? '' : '加载更多' }}
 		</button>
 	</view>
 </template>

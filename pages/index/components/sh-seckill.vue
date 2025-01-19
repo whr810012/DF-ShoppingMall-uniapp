@@ -5,6 +5,8 @@
 		<view class="title-box u-flex u-row-between u-p-y-20  seckill-title">
 			<view class="u-flex u-col-center">
 				<view class="title-text u-m-r-20 u-ellipsis-1">{{ detail.name }}</view>
+				<u-count-down class="count-down-demo" :timestamp="timestamp" separator-color="#ffbbbb" bg-color="#ffbbbb"
+					ref="uCountDown" color="#fff" @end="seckillEndAll" autoplay></u-count-down>
 			</view>
 			<view class="more-box u-flex" @tap="$Router.push('/pages/activity/seckill/list')">
 				<text class="more-text u-m-r-10">更多抢购</text>
@@ -100,6 +102,11 @@ export default {
 			}
 		},
 
+		// 整体秒杀活动结束
+		seckillEndAll() {
+			this.showActivity = false;
+		},
+
 		// 获取秒杀商品
 		getActivityGoodsList() {
 			let that = this;
@@ -128,8 +135,17 @@ export default {
 				return;
 			}
 
+			// 计算整体活动的结束时间（使用最晚的结束时间）
+			const latestEndTime = Math.max(...that.goodsList.map(item => new Date(item.endTime).getTime()));
+			that.timestamp = Math.max(0, Math.floor((latestEndTime - nowTime) / 1000));
+
 			// 在下一个 tick 启动所有倒计时
 			that.$nextTick(() => {
+				// 启动顶部总倒计时
+				if (that.$refs.uCountDown) {
+					that.$refs.uCountDown.start();
+				}
+				// 启动各个商品的倒计时
 				that.goodsList.forEach(item => {
 					const countdownRef = that.$refs['countdown_' + item.id];
 					if (countdownRef && countdownRef[0]) {

@@ -23,10 +23,6 @@
 					:style="{ width: '100%' }"
 					@tap="$tools.routerTo(seckillItem.path)"
 				>
-					<view class="seckill-icon">
-						<u-icon name="clock-fill" color="#ff4444" size="60"></u-icon>
-					</view>
-					<text class="seckill-text">{{ seckillItem.name }}</text>
 				</view>
 			</view>
 		</view>
@@ -158,37 +154,17 @@ export default {
 		}
 		
 		.seckill-item {
-			background: linear-gradient(45deg, #fff5f5, #fff8f8);
-			padding: 24rpx 0;
+			background-image: url('https://img.51miz.com/Element/00/95/92/30/53e73670_E959230_53e9bc5b.jpg');
+			background-size: 100% 100%;
+			background-position: center;
 			border-radius: 12rpx;
 			margin: 20rpx;
 			transition: all 0.3s ease;
+			height: 160rpx;
+			padding: 0;
 			
 			&:active {
 				transform: scale(0.98);
-			}
-
-			.seckill-icon {
-				width: 110rpx;
-				height: 110rpx;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				margin-bottom: 12rpx;
-				background: rgba(255, 68, 68, 0.1);
-				border-radius: 50%;
-				
-				.iconfont {
-					font-size: 60rpx;
-					color: #ff4444;
-				}
-			}
-			
-			.seckill-text {
-				color: #ff4444;
-				font-weight: bold;
-				font-size: 28rpx;
-				letter-spacing: 2rpx;
 			}
 		}
 	}
