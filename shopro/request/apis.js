@@ -252,7 +252,15 @@ export default {
 			// desc: '商品评论分类',
 		},
 	},
-
+	/** 秒杀 ↓ **/
+	seckill: {
+		lists: {
+			url: "seckill/queryAll",
+			auth: true,
+			method: "GET",
+			// desc: '秒杀列表',
+		},
+	},
 	/** 用户 ↓ **/
 	user: {
 		login: {

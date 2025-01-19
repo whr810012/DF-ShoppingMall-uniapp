@@ -27,14 +27,13 @@
 						:oneRowNum="item.content.style"></sh-grid-swiper>
 
 					<!-- 推荐商品 -->
-					<sh-hot-goods v-if="item.type === 'goods-list' || item.type === 'goods-group'"
-						:detail="item.content"></sh-hot-goods>
+					<sh-hot-goods v-if="(item.type === 'goods-list' || item.type === 'goods-group') && goodsList.length" :goodsList="goodsList"></sh-hot-goods>
+					<!-- 秒杀-->
+					<sh-seckill v-if="item.type === 'seckill' && seckillList.length" :seckillList="seckillList"></sh-seckill>
 					<!-- 广告魔方 -->
 					<sh-adv v-if="item.type === 'adv'" :detail="item.content"></sh-adv>
 					<!-- 优惠券 -->
 					<sh-coupon v-if="item.type === 'coupons'" :detail="item.content"></sh-coupon>
-					<!-- 秒杀-->
-					<sh-seckill v-if="item.type === 'seckill'" :detail="item.content"></sh-seckill>
 					<!-- 拼团 -->
 					<sh-groupon v-if="item.type === 'groupon'" :detail="item.content"></sh-groupon>
 					<!-- 富文本 -->
@@ -124,7 +123,9 @@ export default {
 			enable: false, //是否开启吸顶。
 			isConnected: true, //是否有网
 			showPrivacy: false, //协议
-			scrollTop: 0
+			scrollTop: 0,
+			goodsList: [],
+			seckillList: []
 		};
 	},
 	computed: {
@@ -162,15 +163,20 @@ export default {
 		this.enable = false;
 	},
 	onLoad() {
-		this.$http('goods.goods', 
+		this.$http('goods.goods',
 			{},
 			'',
-			true, 
+			true,
 			{
 				page: 1,
 				pageSize: 100
 			}
-		)
+		).then(res => {
+			this.goodsList = res.data.records
+		})
+		this.$http('seckill.lists').then(res => {
+			this.seckillList = res.data
+		})
 		// #ifdef APP-VUE
 		// plus.runtime.disagreePrivacy();
 		console.log(plus.runtime.isAgreePrivacy(), 1111111111);

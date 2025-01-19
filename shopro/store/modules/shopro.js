@@ -193,43 +193,6 @@ const actions = {
             decorate_id: 5791,
           },
           {
-            id: 58355,
-            type: "adv",
-            category: "home",
-            name: "广告魔方",
-            content: {
-              list: [
-                {
-                  image:
-                    "http://file.shopro.top/uploads/20230107/a0814e87c968397cfb595c1f9b62e74a.png",
-                  name: "",
-                  path: "",
-                  path_name: "",
-                  path_type: 1,
-                },
-                {
-                  image:
-                    "http://file.shopro.top/uploads/20230107/601f0a1ff1485f17c62e98341c364f0f.png",
-                  name: "",
-                  path: "",
-                  path_name: "",
-                  path_type: 1,
-                },
-                {
-                  image:
-                    "http://file.shopro.top/uploads/20230107/ec5eb640d7f3011bcbd802fbe71429c2.png",
-                  name: "",
-                  path: "",
-                  path_name: "",
-                  path_type: 1,
-                },
-              ],
-              name: "",
-              style: 3,
-            },
-            decorate_id: 5791,
-          },
-          {
             id: 58356,
             type: "title-block",
             category: "home",
@@ -240,6 +203,28 @@ const actions = {
               image: "https://file.shopro.top/imgs/title2.png",
             },
             decorate_id: 5791,
+          },
+          {
+            id: 583516,
+            type: "goods-list",
+            decorate_id: 57911,
+          },
+          {
+            id: 583561,
+            type: "title-block",
+            category: "home",
+            name: "标题栏",
+            content: {
+              name: "限时秒杀",
+              color: "#000000",
+              image: "https://file.shopro.top/imgs/title2.png",
+            },
+            decorate_id: 57911,
+          },
+          {
+            id: 5835161,
+            type: "seckill",
+            decorate_id: 579111,
           },
         ],
         user: [

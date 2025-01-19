@@ -1,19 +1,19 @@
 <template>
 	<!-- 为你推荐 -->
 	<view class="hot-goods u-m-b-10 u-p-x-16">
-		<view class="u-waterfall" v-if="goodsType === 1">
+		<view class="u-waterfall">
 			<view id="u-left-column" class="u-column">
 				<view class="goods-item u-m-b-16 u-flex u-row-center u-col-center" v-for="leftGoods in leftList" :key="leftGoods.id">
 					<shopro-goods-card
 						:detail="leftGoods"
-						:type="leftGoods.activity_type"
-						:image="leftGoods.image"
-						:title="leftGoods.title"
-						:subtitle="leftGoods.subtitle"
+						:type="null"
+						:image="getGoodsImage(leftGoods)"
+						:title="leftGoods.name"
+						:subtitle="leftGoods.present"
 						:price="leftGoods.price"
-						:originPrice="leftGoods.original_price"
-						:sales="leftGoods.sales"
-						:tagTextList="leftGoods.activity_discounts_tags"
+						:originPrice="getOriginalPrice(leftGoods)"
+						:sales="leftGoods.number"
+						:tagTextList="[]"
 						@click="$Router.push({ path: '/pages/goods/detail', query: { id: leftGoods.id } })"
 					></shopro-goods-card>
 				</view>
@@ -22,14 +22,14 @@
 				<view class="goods-item  u-m-b-16 u-flex u-row-center u-col-center" v-for="rightGoods in rightList" :key="rightGoods.id">
 					<shopro-goods-card
 						:detail="rightGoods"
-						:type="rightGoods.activity_type"
-						:image="rightGoods.image"
-						:title="rightGoods.title"
-						:subtitle="rightGoods.subtitle"
+						:type="null"
+						:image="getGoodsImage(rightGoods)"
+						:title="rightGoods.name"
+						:subtitle="rightGoods.present"
 						:price="rightGoods.price"
-						:originPrice="rightGoods.original_price"
-						:sales="rightGoods.sales"
-						:tagTextList="rightGoods.activity_discounts_tags"
+						:originPrice="getOriginalPrice(rightGoods)"
+						:sales="rightGoods.number"
+						:tagTextList="[]"
 						@click="$Router.push({ path: '/pages/goods/detail', query: { id: rightGoods.id } })"
 					></shopro-goods-card>
 				</view>
@@ -77,7 +77,7 @@ export default {
 			lastPage: 1, //总分页
 			total: 0, //总商品数
 			perPage: 0, //单页商品数
-			goodsList: [],
+			NewGoodsList: [],
 			isRefresh: false,
 
 			// 瀑布流 350-330
@@ -88,27 +88,37 @@ export default {
 			rightList: [],
 			tempList: [],
 
-			goodsType: this.detail.style // 商品模板
 		};
 	},
 
 	props: {
 		detail: {
 			type: Object,
-			default: () => {}
+			default() {
+				return {};
+			}
+		},
+		goodsList: {
+			type: Array,
+			default() {
+				return [];
+			}
 		}
 	},
 	created() {
-		if (this.detail.id) {
-			this.listParams.category_id = this.detail.id;
-			this.getGoodsList();
-		}
-		if (this.detail.ids) {
-			this.listParams.goods_ids = this.detail.ids;
-			this.getGoodsList();
-		}
+		this.getGoodsList();
 	},
 	methods: {
+		// 获取商品图片
+		getGoodsImage(goods) {
+			if (!goods.dityUrl || !goods.dityUrl.length) return '';
+			return goods.dityUrl[0].avatar || '';
+		},
+		// 获取商品原价
+		getOriginalPrice(goods) {
+			if (!goods.price || !goods.discount) return 0;
+			return (goods.price / (goods.discount / 10)).toFixed(2);
+		},
 		// 瀑布流相关
 		async splitData() {
 			if (!this.tempList.length) return;
@@ -117,13 +127,13 @@ export default {
 
 			// 分左右
 			if (this.leftHeight < this.rightHeight) {
-				this.leftHeight += item.activity_discounts_tags?.length ? 350 : 330;
+				this.leftHeight += 330; // 由于没有 activity_discounts_tags，统一使用 330
 				this.leftList.push(item);
 			} else if (this.leftHeight > this.rightHeight) {
-				this.rightHeight += item.activity_discounts_tags?.length ? 350 : 330;
+				this.rightHeight += 330;
 				this.rightList.push(item);
 			} else {
-				this.leftHeight += item.activity_discounts_tags?.length ? 350 : 330;
+				this.leftHeight += 330;
 				this.leftList.push(item);
 			}
 
@@ -145,18 +155,16 @@ export default {
 
 		// 商品列表
 		getGoodsList() {
-			let that = this;
-			that.$http('goods.lists', this.listParams).then(res => {
-				if (res.code === 1) {
-					this.lastPage = res.data.last_page;
-					this.total = res.data.total;
-					this.perPage = res.data.per_page;
-					this.isRefresh = false;
-					that.goodsList = [...that.goodsList, ...res.data.data];
-					that.tempList = res.data.data;
-					that.goodsList.length && that.splitData();
-				}
-			});
+			console.log(this.goodsList)
+			
+			if (!this.goodsList || !this.goodsList.length) return;
+			this.tempList = this.goodsList.slice(0, 10);
+			this.total = this.goodsList.length;
+			this.perPage = 10;
+			this.lastPage = Math.ceil(this.total / this.perPage);
+			if (this.tempList.length) {
+				this.splitData();
+			}
 		},
 
 		// 加载更多

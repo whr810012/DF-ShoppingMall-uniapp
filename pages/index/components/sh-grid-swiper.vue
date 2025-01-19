@@ -1,35 +1,34 @@
 <template>
 	<!-- 产品分类导航 -->
 	<view class="wrap">
-		<view class="menu-category-box u-m-b-10" :style="list.length <= oneRowNum ? `height:180rpx` : `height:380rpx`">
-			<swiper
-				class="menu-swiper-box"
-				@change="onSwiper"
-				:style="list.length <= oneRowNum ? `height:160rpx` : `height:380rpx`"
-				circular
-				:autoplay="false"
-				:interval="3000"
-				:duration="1000"
-			>
-				<swiper-item class="menu-swiper-item" v-for="(itemList, index) in newList" :key="index">
-					<view class="menu-tab-box u-flex u-flex-wrap">
-						<view
-							class="tab-list u-flex-col u-col-center u-row-center"
-							:style="{ width: 100 / oneRowNum + '%' }"
-							v-for="(item, index) in itemList"
-							:key="index"
-							@tap="$tools.routerTo(item.path)"
-						>
-							<image class="tab-img" :src="item.image"></image>
-							<text class="">{{ item.name }}</text>
-						</view>
+		<view class="menu-category-box u-m-b-10">
+			<view class="menu-tab-box u-flex u-flex-wrap">
+				<view
+					class="tab-list u-flex-col u-col-center u-row-center"
+					:style="{ width: 100 / oneRowNum + '%' }"
+					v-for="(item, index) in normalItems"
+					:key="index"
+					@tap="$tools.routerTo(item.path)"
+				>
+					<view class="tab-icon">
+						<u-icon :name="item.icon.name" :color="item.icon.color" size="50"></u-icon>
 					</view>
-				</swiper-item>
-			</swiper>
-			<view class="menu-category-dots" v-if="newList.length > 1">
-				<text :class="categoryCurrent === index ? 'category-dot-active' : 'category-dot'" v-for="(dot, index) in newList.length" :key="index"></text>
+					<text class="">{{ item.name }}</text>
+				</view>
 			</view>
-		</view>
+			<!-- 秒杀单独一行 -->
+			<view class="menu-tab-box u-flex u-flex-wrap" v-if="seckillItem">
+				<view
+					class="tab-list u-flex-col u-col-center u-row-center seckill-item"
+					:style="{ width: '100%' }"
+					@tap="$tools.routerTo(seckillItem.path)"
+				>
+					<view class="seckill-icon">
+						<u-icon name="clock-fill" color="#ff4444" size="60"></u-icon>
+					</view>
+					<text class="seckill-text">{{ seckillItem.name }}</text>
+				</view>
+			</view>
 		</view>
 	</view>
 </template>
@@ -44,44 +43,80 @@ export default {
 	components: {},
 	data() {
 		return {
-			categoryCurrent: 0 ,//分类轮播下标
+			sortList: [],
+			// 定义一组图标
+			iconList: [
+				{ name: 'star', color: '#5677fc' },
+				{ name: 'heart', color: '#f56c6c' },
+				{ name: 'star', color: '#ff9900' },
+				{ name: 'gift', color: '#19be6b' }
+			]
 		};
 	},
 	props: {
-		list: {
-			type: Array,
-			default: () => {
-				return [];
-			}
-		},
 		oneRowNum: {
 			type: [Number, String],
 			default: 5
 		}
 	},
 	computed: {
-		newList() {
-			if (this.list.length) {
-				let data = this.$tools.splitData(this.list, this.oneRowNum * 2);
-				return data;
-			}
+		seckillItem() {
+			return this.sortList.find(item => item.id === 10000);
+		},
+		normalItems() {
+			return this.sortList.filter(item => item.id !== 10000);
 		}
 	},
 	methods: {
-		// 轮播
-		onSwiper(e) {
-			this.categoryCurrent = e.detail.current;
-		},
 		jump(path, query) {
 			this.$Router.push({
 				path: path,
 				query: query
 			});
+		},
+		// 处理分类数据
+		processCategoryData(list) {
+			return list.map((item, index) => {
+				const icon = this.iconList[index % this.iconList.length];
+				return {
+					...item,
+					icon: icon,
+					path: `/pages/goods/list?category_id=${item.id}`
+				};
+			});
 		}
 	},
 	created() {
 		this.$http('category.sort').then(res => {
-			console.log(res)
+			console.log('分类数据:', res.data)
+			this.sortList = res.data || []
+			// 截取前4个
+			this.sortList = this.sortList.slice(0, 4)
+			// 处理数据，添加图标和路径
+			this.sortList = this.processCategoryData(this.sortList)
+			console.log('处理后的分类:', this.sortList)
+			// 增加秒杀
+			this.sortList.push({
+				id: 10000,
+				name: '限时秒杀',
+				path: '/pages/activity/seckill/list'
+			})
+			console.log('最终分类数据:', this.sortList)
+		}).catch(err => {
+			console.error('获取分类失败:', err)
+			// 使用默认数据
+			this.sortList = this.processCategoryData([
+				{ id: 1, name: '热门推荐' },
+				{ id: 2, name: '新品上市' },
+				{ id: 3, name: '特价优惠' },
+				{ id: 4, name: '品牌精选' }
+			])
+			// 增加秒杀
+			this.sortList.push({
+				id: 10000,
+				name: '限时秒杀',
+				path: '/pages/activity/seckill/list'
+			})
 		})
 	}
 };
@@ -89,25 +124,71 @@ export default {
 
 <style lang="scss">
 // 产品分类
-.menu-category-box,
-.menu-swiper-box {
+.menu-category-box {
 	position: relative;
 	background: #fff;
-	.menu-swiper-item {
-		background: #fff;
-		height: 100%;
-		width: 100%;
-	}
+	border-radius: 16rpx;
+	box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+	margin: 20rpx;
+	padding: 10rpx 0;
+
 	.menu-tab-box {
 		.tab-list {
-			font-size: 26rpx;
+			font-size: 24rpx;
 			font-weight: 500;
-			color: rgba(51, 51, 51, 1);
+			color: #333;
 			margin: 20rpx 0;
-			.tab-img {
-				width: 98rpx;
-				height: 98rpx;
-				margin-bottom: 10rpx;
+			transition: all 0.3s ease;
+			
+			&:active {
+				transform: scale(0.95);
+			}
+
+			.tab-icon {
+				width: 100rpx;
+				height: 100rpx;
+				margin-bottom: 12rpx;
+				background: rgba(86, 119, 252, 0.05);
+				border-radius: 50%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				transition: all 0.3s ease;
+			}
+		}
+		
+		.seckill-item {
+			background: linear-gradient(45deg, #fff5f5, #fff8f8);
+			padding: 24rpx 0;
+			border-radius: 12rpx;
+			margin: 20rpx;
+			transition: all 0.3s ease;
+			
+			&:active {
+				transform: scale(0.98);
+			}
+
+			.seckill-icon {
+				width: 110rpx;
+				height: 110rpx;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				margin-bottom: 12rpx;
+				background: rgba(255, 68, 68, 0.1);
+				border-radius: 50%;
+				
+				.iconfont {
+					font-size: 60rpx;
+					color: #ff4444;
+				}
+			}
+			
+			.seckill-text {
+				color: #ff4444;
+				font-weight: bold;
+				font-size: 28rpx;
+				letter-spacing: 2rpx;
 			}
 		}
 	}
@@ -117,22 +198,22 @@ export default {
 		position: absolute;
 		left: 50%;
 		transform: translateX(-50%);
-		bottom: 10rpx;
+		bottom: 16rpx;
+		gap: 8rpx;
 
 		.category-dot {
 			width: 12rpx;
 			height: 12rpx;
-			background: #eeeeee;
+			background: #eee;
 			border-radius: 50%;
-			margin-right: 10rpx;
+			transition: all 0.3s ease;
 		}
 
 		.category-dot-active {
-			width: 12rpx;
+			width: 24rpx;
 			height: 12rpx;
-			background: #e9b461;
-			border-radius: 50%;
-			margin-right: 10rpx;
+			background: #5677fc;
+			border-radius: 6rpx;
 		}
 	}
 }
