@@ -282,7 +282,7 @@ export default {
 		getSmsCode(type) {
 			const that = this;
 			if (that.form[this.authType].data.isMobileEnd && !that.disabledCode) {
-				that.$http(
+				that.$(
 					"common.smsSend",
 					{
 						mobile: that.form[this.authType].data.mobile,
@@ -340,11 +340,30 @@ export default {
 				this.$u.toast("请同意用户协议");
 				return false;
 			}
-			const token = await wechat.login(payload);
-			if (token) {
-				this.closeAuthModal();
-				this.getUserInfo(token);
-			}
+			
+			uni.login({
+				provider: 'weixin',
+				success: async(res) => {
+					console.log(res);
+					const code = res.code;
+					this.$http("user.login", {
+						code
+					}).then(res => {
+						console.log(res);
+						if (res.code === 1) {
+							this.closeAuthModal();
+							uni.setStorageSync('token', res.data.token);
+							uni.setStorageSync('userInfo', res.data);
+							// 刷新当前页面
+							const pages = getCurrentPages();
+							const currentPage = pages[pages.length - 1];
+							if (currentPage && currentPage.onLoad) {
+								currentPage.onLoad(currentPage.options || {});
+							}
+						}
+					});
+				}
+			});
 		},
 
 		// 1.账号登录

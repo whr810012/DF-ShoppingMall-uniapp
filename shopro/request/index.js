@@ -8,6 +8,7 @@ export default function http(
 	data = {},
 	toastBefore = '', // 请求前加载提示
 	toastAfter = true, // 请求后错误提示
+	params = {}
 ) {
 	let api = getApiPath(url);
 	/* 请求之前拦截器 */
@@ -57,7 +58,8 @@ export default function http(
 	return shoproRequest.request({
 		url: api.url,
 		data,
-		method: api.method
+		method: api.method,
+		params: params  // 添加这一行
 	})
 
 }

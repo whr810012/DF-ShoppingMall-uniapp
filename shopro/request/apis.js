@@ -156,6 +156,11 @@ export default {
 
 	/** 商品 ↓ **/
 	goods: {
+		goods:{
+			url: 'dity/querylist',
+			auth: true,
+			method: 'POST',
+		},
 		lists: {
 			url: "goods/lists",
 			auth: false,

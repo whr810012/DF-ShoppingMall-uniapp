@@ -5,49 +5,30 @@
 		<!-- #ifdef APP-PLUS -->
 		<u-no-network @retry="init"></u-no-network>
 		<!-- #endif -->
-		<shopro-empty
-			v-if="!hasTemplate"
-			:image="$IMG_URL + '/imgs/empty/template_empty.png'"
-			tipText="暂未找到模板，请前往装修~"
-		></shopro-empty>
+		<shopro-empty v-if="!hasTemplate" :image="$IMG_URL + '/imgs/empty/template_empty.png'"
+			tipText="暂未找到模板，请前往装修~"></shopro-empty>
 
 		<view v-else-if="isConnected && isRefresh" class="content-box">
 			<!-- 导航栏 -->
-			<home-head
-				v-if="headSwiperList && headSwiperList.length"
-				:scrollTop="scrollTop"
-				borderRadius="0"
-				:navTitle="initShop.name"
-				:list="headSwiperList"
-			></home-head>
+			<home-head v-if="headSwiperList && headSwiperList.length" :scrollTop="scrollTop" borderRadius="0"
+				:navTitle="initShop.name" :list="headSwiperList"></home-head>
 			<!-- 自定义模块 -->
 			<view class="template-box">
 				<block v-for="(item, index) in homeTemplate" :key="item.id">
 					<!-- 轮播 -->
-					<sh-banner
-						v-if="item.type === 'banner' && index !== 0"
-						:Px="item.content.x"
-						:Py="item.content.y"
-						:borderRadius="item.content.radius"
-						:height="item.content.height"
-						:list="item.content.list"
-					></sh-banner>
+					<sh-banner v-if="item.type === 'banner' && index !== 0" :Px="item.content.x" :Py="item.content.y"
+						:borderRadius="item.content.radius" :height="item.content.height" :list="item.content.list"></sh-banner>
 
 					<!-- 搜索 -->
 					<sh-search v-if="item.type === 'search'"></sh-search>
 
 					<!-- 滑动宫格 -->
-					<sh-grid-swiper
-						v-if="item.type === 'menu'"
-						:list="item.content.list"
-						:oneRowNum="item.content.style"
-					></sh-grid-swiper>
+					<sh-grid-swiper v-if="item.type === 'menu'" :list="item.content.list"
+						:oneRowNum="item.content.style"></sh-grid-swiper>
 
 					<!-- 推荐商品 -->
-					<sh-hot-goods
-						v-if="item.type === 'goods-list' || item.type === 'goods-group'"
-						:detail="item.content"
-					></sh-hot-goods>
+					<sh-hot-goods v-if="item.type === 'goods-list' || item.type === 'goods-group'"
+						:detail="item.content"></sh-hot-goods>
 					<!-- 广告魔方 -->
 					<sh-adv v-if="item.type === 'adv'" :detail="item.content"></sh-adv>
 					<!-- 优惠券 -->
@@ -59,12 +40,8 @@
 					<!-- 富文本 -->
 					<sh-richtext v-if="item.type === 'rich-text'" :richId="item.content.id"></sh-richtext>
 					<!-- 功能标题 -->
-					<sh-title-card
-						v-if="item.type === 'title-block'"
-						:title="item.content.name"
-						:bgImage="item.content.image"
-						:titleColor="item.content.color"
-					></sh-title-card>
+					<sh-title-card v-if="item.type === 'title-block'" :title="item.content.name" :bgImage="item.content.image"
+						:titleColor="item.content.color"></sh-title-card>
 					<!-- 直播 -->
 					<!-- #ifdef MP-WEIXIN -->
 					<sh-live v-if="item.type === 'live' && HAS_LIVE" :detail="item.content"></sh-live>
@@ -73,12 +50,9 @@
 			</view>
 
 			<!-- 分类选项卡 -->
-			<sh-category-tabs
-				v-if="categoryTabsData && categoryTabsData.category_arr && categoryTabsData.category_arr.length"
-				:enable="enable"
-				:styleType="categoryTabsData.style"
-				:tabsList="categoryTabsData.category_arr"
-			></sh-category-tabs>
+			<sh-category-tabs v-if="categoryTabsData && categoryTabsData.category_arr && categoryTabsData.category_arr.length"
+				:enable="enable" :styleType="categoryTabsData.style"
+				:tabsList="categoryTabsData.category_arr"></sh-category-tabs>
 			<!-- 登录提示 -->
 			<shopro-auth-modal></shopro-auth-modal>
 			<!-- 悬浮按钮 -->
@@ -188,6 +162,15 @@ export default {
 		this.enable = false;
 	},
 	onLoad() {
+		this.$http('goods.goods', 
+			{},
+			'',
+			true, 
+			{
+				page: 1,
+				pageSize: 100
+			}
+		)
 		// #ifdef APP-VUE
 		// plus.runtime.disagreePrivacy();
 		console.log(plus.runtime.isAgreePrivacy(), 1111111111);

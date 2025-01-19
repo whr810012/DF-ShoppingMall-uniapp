@@ -10,16 +10,8 @@
 			// 没有token，自动登录
 			const token = uni.getStorageSync('token');
 			let that = this;
-			uni.login({
-				provider: 'weixin',
-				success: (res) => {
-					console.log(res);
-					const code = res.code
-					that.$http("user.login", 
-						{code},
-					);
-				}
-			});
+			if(!token){
+		}
 		}
 	};
 </script>
