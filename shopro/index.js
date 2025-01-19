@@ -47,12 +47,10 @@ export async function init(options) {
 	// 检测小程序更新(如果从朋友圈场景进入则无此API)
 	options.scene !== 1154 && wechat.checkMiniProgramUpdate();
 	// #endif
-	await store.dispatch("appInit", options); // 加载商城基本信息
+	// await store.dispatch("appInit", options); // 加载商城基本信息
 	await store.dispatch("getTemplate", options); // 加载模板数据
-	// #ifdef MP-WEIXIN
-	await store.dispatch('getMessageIds'); //获取模板消息
-	// #endif
-	process.env.NODE_ENV === 'development' && store.dispatch("syncPages");
+	
+
 }
 
 export default {

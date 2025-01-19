@@ -1,6 +1,6 @@
 {
     "name" : "Shopro商城",
-    "appid" : "__UNI_*****06",
+    "appid" : "wx43b187f9c8ee430f",
     "description" : "Shopro商城",
     "versionName" : "1.4.0",
     "versionCode" : 140,
@@ -163,7 +163,7 @@
     },
     "quickapp" : {},
     "mp-weixin" : {
-        "appid" : "wx3*****67dd0",
+        "appid" : "wx43b187f9c8ee430f",
         "setting" : {
             "urlCheck" : false,
             "es6" : true, //消除大多数样式警告

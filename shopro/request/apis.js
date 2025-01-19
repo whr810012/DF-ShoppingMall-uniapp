@@ -245,7 +245,11 @@ export default {
 
 	/** 用户 ↓ **/
 	user: {
-
+		login: {
+			url: "login",
+			auth: false,
+			method: "POST",
+		},
 		accountLogin: {
 			url: "user/accountLogin",
 			auth: false,

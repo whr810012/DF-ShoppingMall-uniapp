@@ -19,7 +19,7 @@ export default function http(
 			throw (`暂未登录,已阻止此次API请求: '${api.url}'`);
 		}
 		token && shoproRequest.setConfig(config => {
-			config.header.token = token
+			config.header.authentication = token
 		})
 		if (toastBefore !== '') {
 			uni.showLoading({
