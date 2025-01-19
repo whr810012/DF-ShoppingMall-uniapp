@@ -78,6 +78,11 @@ export default {
 				query: query
 			});
 		}
+	},
+	created() {
+		this.$http('category.sort').then(res => {
+			console.log(res)
+		})
 	}
 };
 </script>

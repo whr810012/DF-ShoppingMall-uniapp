@@ -95,7 +95,7 @@ const actions = {
               list: [
                 {
                   image:
-                    "http://file.shopro.top/uploads/20230107/6b21f96cca4abbdc39a414c201f47ce0.jpg",
+                    "https://img.tuguaishou.com/ips_templ_preview/92/51/9a/lg_3230950_1612605512_601e68485b0ec.jpg!w1024_w?auth_key=1897344000-0-0-269dd1cbf93479f0dbd02bc3b3869b7c",
                   path: "",
                   path_type: 1,
                   name: "",
@@ -104,7 +104,7 @@ const actions = {
                 },
                 {
                   image:
-                    "http://file.shopro.top/uploads/20230107/35b41f3b20ac46dc48414c9c04de79af.jpg",
+                    "https://photo.16pic.com/00/49/96/16pic_4996371_b.jpg",
                   path: "",
                   path_type: 1,
                   name: "",

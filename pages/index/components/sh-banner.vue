@@ -11,7 +11,7 @@
 			duration="500"
 		>
 			<swiper-item :style="{ borderRadius: borderRadius + 'rpx' }" v-for="(item, index) in list" :key="index" @tap="onSwiper(index)">
-				<image :src="item.image" mode="aspectFill"></image>
+				<image :src="item.image" mode="widthFix" class="swiper-image"></image>
 			</swiper-item>
 		</swiper>
 	</view>
@@ -66,4 +66,14 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.banner-swiper-wrap {
+	width: 100%;
+	
+	.swiper-image {
+		width: 100%;
+		height: 100%;
+		display: block;
+	}
+}
+</style>

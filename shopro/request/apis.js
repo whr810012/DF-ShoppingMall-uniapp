@@ -81,6 +81,11 @@ export default {
 
 	/** 分类 ↓ **/
 	category: {
+		sort: {
+			url: 'sort/queryAll',
+			auth: true,
+			method: 'GET',
+		},
 		info: {
 			url: "category/detail",
 			auth: false,
