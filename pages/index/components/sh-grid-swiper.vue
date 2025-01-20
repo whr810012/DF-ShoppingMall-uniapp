@@ -11,7 +11,7 @@
 					@tap="$tools.routerTo(item.path)"
 				>
 					<view class="tab-icon">
-						<u-icon :name="item.icon.name" :color="item.icon.color" size="50"></u-icon>
+						<image :src="item.avatar" mode="aspectFill" class="category-image"></image>
 					</view>
 					<text class="">{{ item.name }}</text>
 				</view>
@@ -39,14 +39,7 @@ export default {
 	components: {},
 	data() {
 		return {
-			sortList: [],
-			// 定义一组图标
-			iconList: [
-				{ name: 'star', color: '#5677fc' },
-				{ name: 'heart', color: '#f56c6c' },
-				{ name: 'star', color: '#ff9900' },
-				{ name: 'gift', color: '#19be6b' }
-			]
+			sortList: []
 		};
 	},
 	props: {
@@ -72,11 +65,9 @@ export default {
 		},
 		// 处理分类数据
 		processCategoryData(list) {
-			return list.map((item, index) => {
-				const icon = this.iconList[index % this.iconList.length];
+			return list.map(item => {
 				return {
 					...item,
-					icon: icon,
 					path: `/pages/goods/list?category_id=${item.id}`
 				};
 			});
@@ -88,31 +79,17 @@ export default {
 			this.sortList = res.data || []
 			// 截取前4个
 			this.sortList = this.sortList.slice(0, 4)
-			// 处理数据，添加图标和路径
+			// 处理数据，添加路径
 			this.sortList = this.processCategoryData(this.sortList)
-			console.log('处理后的分类:', this.sortList)
 			// 增加秒杀
 			this.sortList.push({
 				id: 10000,
 				name: '限时秒杀',
 				path: '/pages/activity/seckill/list'
 			})
-			console.log('最终分类数据:', this.sortList)
 		}).catch(err => {
 			console.error('获取分类失败:', err)
-			// 使用默认数据
-			this.sortList = this.processCategoryData([
-				{ id: 1, name: '热门推荐' },
-				{ id: 2, name: '新品上市' },
-				{ id: 3, name: '特价优惠' },
-				{ id: 4, name: '品牌精选' }
-			])
-			// 增加秒杀
-			this.sortList.push({
-				id: 10000,
-				name: '限时秒杀',
-				path: '/pages/activity/seckill/list'
-			})
+			this.sortList = []
 		})
 	}
 };
@@ -144,12 +121,18 @@ export default {
 				width: 100rpx;
 				height: 100rpx;
 				margin-bottom: 12rpx;
-				background: rgba(86, 119, 252, 0.05);
 				border-radius: 50%;
 				display: flex;
 				align-items: center;
 				justify-content: center;
 				transition: all 0.3s ease;
+				overflow: hidden;
+
+				.category-image {
+					width: 100%;
+					height: 100%;
+					border-radius: 50%;
+				}
 			}
 		}
 		
