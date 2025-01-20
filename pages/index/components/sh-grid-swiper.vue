@@ -118,20 +118,21 @@ export default {
 			}
 
 			.tab-icon {
-				width: 100rpx;
-				height: 100rpx;
+				width: 120rpx;
+				height: 120rpx;
 				margin-bottom: 12rpx;
-				border-radius: 50%;
 				display: flex;
 				align-items: center;
 				justify-content: center;
 				transition: all 0.3s ease;
 				overflow: hidden;
+				border-radius: 16rpx;
 
 				.category-image {
-					width: 100%;
-					height: 100%;
-					border-radius: 50%;
+					width: 120rpx;
+					height: 120rpx;
+					object-fit: cover;
+					border-radius: 16rpx;
 				}
 			}
 		}
