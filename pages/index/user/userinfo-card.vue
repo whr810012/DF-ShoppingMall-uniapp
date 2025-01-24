@@ -53,8 +53,7 @@ export default {
 			isFixed: false,
 			navBackground: {
 				background: 'none'
-			},
-			userInfo: {}
+			}
 		};
 	},
 	mounted() { },
@@ -63,6 +62,10 @@ export default {
 		scrollTop: {
 			type: Number,
 			default: 0
+		},
+		userInfo: {
+			type: Object,
+			default: {}
 		}
 	},
 	watch: {
@@ -127,10 +130,6 @@ export default {
 	},
 	created() {
 		console.log(this.userInfo);
-		this.$http('user.getUserInfo').then(res => {
-			console.log(res.data);
-			this.userInfo = res.data;
-		})
 	}
 };
 </script>

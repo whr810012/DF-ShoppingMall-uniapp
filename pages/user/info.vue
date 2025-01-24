@@ -3,8 +3,8 @@
 	<view class="container">
 		<view class="u-flex u-row-between u-p-x-30 info-head u-p-y-20">
 			<view class="info-title">基本信息</view>
-			<button class="u-reset-button save-btn" :class="{ 'dis-btn': editInfoDisabled }"
-				:disabled="editInfoDisabled" @tap="editUserInfo">
+			<button class="u-reset-button save-btn" :class="{ 'dis-btn': editInfoDisabled }" :disabled="editInfoDisabled"
+				@tap="editUserInfo">
 				保存
 			</button>
 		</view>
@@ -27,7 +27,7 @@
 		<view class="user-list u-flex u-row-between" @tap="changeSex">
 			<text class="list-name">性别</text>
 			<view class="u-flex">
-				<text class="list-val">{{ userData.sex === 1 ? '男' : userData.sex === 2 ? '女' : '未设置' }}</text>
+				<text class="list-val">{{ userData.sex === '1' ? '男' : userData.sex === '2' ? '女' : '未设置' }}</text>
 				<text class="u-iconfont uicon-arrow-right u-m-l-20" style="color:#999;"></text>
 			</view>
 		</view>
@@ -60,10 +60,11 @@
 			second: false
 		}"></u-picker>
 		<!-- modal -->
-		<u-modal ref="uModal" v-model="showModal" :show-cancel-button="true" confirm-color="#F54141"
-			cancel-color="#666666" @confirm="confirmLogOut" content="确定退出登录？"></u-modal>
+		<u-modal ref="uModal" v-model="showModal" :show-cancel-button="true" confirm-color="#F54141" cancel-color="#666666"
+			@confirm="confirmLogOut" content="确定退出登录？"></u-modal>
 		<!-- 性别选择器 -->
-		<u-picker @confirm="confirmSex" mode="selector" :range="sexList" range-key="name" v-model="showSexPicker" confirm-color="#e9b461"></u-picker>
+		<u-picker @confirm="confirmSex" mode="selector" :range="sexList" range-key="name" v-model="showSexPicker"
+			confirm-color="#e9b461"></u-picker>
 	</view>
 </template>
 
@@ -136,11 +137,17 @@ export default {
 				this.$u.toast("昵称不能为空");
 				return false;
 			}
-			
+
 			// 校验手机号
 			const phoneReg = /^1[3-9]\d{9}$/;
 			if (that.userData.phone && !phoneReg.test(that.userData.phone)) {
 				this.$u.toast('请输入正确的手机号');
+				return false;
+			}
+
+			// 校验性别
+			if (!that.userData.sex) {
+				this.$u.toast('请选择性别');
 				return false;
 			}
 
@@ -154,6 +161,7 @@ export default {
 						name: that.userData.name,
 						phone: that.userData.phone,
 						sex: that.userData.sex,
+						id: that.userData.id
 					},
 					header: {
 						'authentication': uni.getStorageSync("token")
@@ -161,7 +169,10 @@ export default {
 					success: (uploadRes) => {
 						const res = typeof uploadRes.data === 'string' ? JSON.parse(uploadRes.data) : uploadRes.data;
 						if (res.code === 1) {
-							that.getUserInfo();
+							this.$http('user.getUserInfo').then(res => {
+								console.log(res.data)
+								this.userData = res.data
+							})
 							that.editInfoDisabled = true;
 							that.$u.toast("保存成功");
 							that.userData.tempFilePath = null;
@@ -187,10 +198,14 @@ export default {
 						name: that.userData.name,
 						phone: that.userData.phone,
 						sex: that.userData.sex,
+						id: that.userData.id
 					},
 					success: (res) => {
 						if (res.data.code === 1) {
-							that.getUserInfo();
+							this.$http('user.getUserInfo').then(res => {
+								console.log(res.data)
+								this.userData = res.data
+							})
 							that.editInfoDisabled = true;
 							that.$u.toast("保存成功");
 						} else {
@@ -231,14 +246,40 @@ export default {
 			return new Promise((resolve, reject) => {
 				uni.chooseImage({
 					count: count, //默认9
-					sizeType: ["original", "compressed"], //可以指定是原图还是压缩图，默认二者都有
+					sizeType: ["compressed"], //只使用压缩图
 					sourceType: ["album"], //从相册选择
 					success: res => {
-						resolve(res.tempFilePaths);
+						// 检查图片大小
+						const tempFilePath = res.tempFilePaths[0];
+						uni.getFileInfo({
+							filePath: tempFilePath,
+							success: (fileInfo) => {
+								const fileSize = fileInfo.size;
+								// 如果大于1MB，提示错误
+								if (fileSize > 1048576) {
+									uni.showToast({
+										title: '图片大小不能超过1MB',
+										icon: 'none'
+									});
+									reject('图片太大');
+									return;
+								}
+								resolve(res.tempFilePaths);
+							},
+							fail: (err) => {
+								console.error('获取文件信息失败：', err);
+								reject(err);
+							}
+						});
+					},
+					fail: (err) => {
+						console.error('选择图片失败：', err);
+						reject(err);
 					}
 				});
 			}).catch(e => {
 				console.log(e);
+				return [];
 			});
 		},
 		// 图片处理-上传图片
@@ -272,21 +313,21 @@ export default {
 		changeSex() {
 			this.showSexPicker = true;
 		},
-		
+
 		// 确认性别选择
 		confirmSex(e) {
 			console.log('性别选择返回数据：', e);
 			if (typeof e === 'number') {
 				// 直接返回索引的情况
-				this.userData.sex = this.sexList[e].value;
+				this.userData.sex = String(this.sexList[e].value);
 				this.editInfoDisabled = false;
 			} else if (e && e.value) {
 				// 返回对象的情况
-				this.userData.sex = e.value;
+				this.userData.sex = String(e.value);
 				this.editInfoDisabled = false;
 			} else if (Array.isArray(e) && e.length > 0) {
 				// 返回数组的情况
-				this.userData.sex = this.sexList[e[0]].value;
+				this.userData.sex = String(this.sexList[e[0]].value);
 				this.editInfoDisabled = false;
 			}
 		}

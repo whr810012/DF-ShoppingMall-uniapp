@@ -14,15 +14,6 @@
 		<view class="foot_box-wrap safe-area-inset-bottom">
 			<view class="foot_box u-flex u-row-between safe-area-inset-bottom">
 				<!-- 微信小程序和微信H5 -->
-				<button
-					class="u-reset-button sync-wxaddress u-m-20 u-flex u-row-center u-col-center"
-					@tap="getWXaddress"
-					v-show="platform == 'wxMiniProgram' || platform == 'wxOfficialAccount'"
-				>
-					<text class="u-iconfont uicon-weixin-fill u-p-r-10" style="color:#09bb07;font-size: 40rpx;"></text>
-
-					导入微信地址
-				</button>
 				<button class="u-reset-button add-btn u-m-20" @tap="jump('/pages/user/address/edit')">添加新的收货地址</button>
 			</view>
 		</view>
@@ -80,7 +71,7 @@ export default {
 		getAddressList() {
 			this.$http('address.list').then(res => {
 				if (res.code === 1) {
-					this.addressList = res.data;
+					this.addressList = res.data || [];
 					!this.addressList.length && uni.$emit('SELECT_ADDRESS', { addressData: null });
 				}
 			});

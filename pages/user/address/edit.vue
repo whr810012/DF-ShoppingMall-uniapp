@@ -13,24 +13,27 @@
 
 			<view class="address-box">
 				<!-- 地址表单 -->
-				<u-form-item :labelStyle="labelStyle" 　 label-width="150" label-position="left" label="收货人:" prop="consignee">
-					<u-input placeholder="请填写收货人姓名" v-model="model.consignee" type="text"></u-input>
+				<u-form-item :labelStyle="labelStyle" 　 label-width="150" label-position="left" label="收货人:" prop="name">
+					<u-input placeholder="请填写收货人姓名" v-model="model.name" type="text"></u-input>
+				</u-form-item>
+				<u-form-item :labelStyle="labelStyle" 　 label-width="150" label-position="left" label="性别:" prop="sex">
+					<u-radio-group v-model="model.sex">
+						<u-radio name="1" style="margin-right: 30rpx;">先生</u-radio>
+						<u-radio name="2">女士</u-radio>
+					</u-radio-group>
 				</u-form-item>
 				<u-form-item :labelStyle="labelStyle" 　 label-width="150" label-position="left" label="手机号:" prop="phone">
 					<u-input placeholder="请输入收货人手机号" v-model="model.phone" type="number"></u-input>
 				</u-form-item>
-				<u-form-item :labelStyle="labelStyle" label-width="150" label-position="left" label="所在地区:" prop="area_text">
-					<u-input type="select" v-model="model.area_text" :select-open="showSelect" placeholder="请选择地区" @click="showSelect = true"></u-input>
-				</u-form-item>
 				<u-form-item :labelStyle="labelStyle" label-position="left" label-width="150" label="详细地址:" prop="address">
-					<u-input border type="textarea" v-model="model.address" placeholder="如道路、门牌号、小区、楼栋号、单元室等" />
+					<u-input border type="textarea" v-model="model.address" placeholder="请输入详细的省市区及街道地址，如：广东省深圳市南山区xx街道xx路xx号" />
 				</u-form-item>
 			</view>
 
 			<!-- 设置默认 -->
 			<view class="default-box u-flex u-row-between">
 				<text class="title">设为默认地址</text>
-				<u-switch v-model="model.is_default" activeColor="#e9b461" size="40"></u-switch>
+				<u-switch v-model="model.status" activeColor="#e9b461" size="40"></u-switch>
 			</view>
 
 			<!-- 功能按钮 -->
@@ -61,14 +64,13 @@ export default {
 				color: '#595959'
 			},
 			model: {
-				id: 0,
-				consignee: '',
-				phone: '',
-				area_text: '',
-				address: '',
-				is_default: false,
-				latitude: '',
-				longitude: ''
+				address: '', // 详细地址
+				ing: '', // 经度
+				lat: '', // 纬度
+				name: '', // 收货人姓名
+				phone: '', // 手机号
+				sex: '1', // 性别：1先生 2女士
+				status: 0 // 是否默认地址：1默认，0非默认
 			},
 			rules: {
 				phone: [
@@ -85,17 +87,10 @@ export default {
 						trigger: ['change', 'blur']
 					}
 				],
-				consignee: [
+				name: [
 					{
 						required: true,
 						message: '请填写收货人姓名',
-						trigger: ['change', 'blur']
-					}
-				],
-				area_text: [
-					{
-						required: true,
-						message: '请选择地区',
 						trigger: ['change', 'blur']
 					}
 				],
@@ -116,8 +111,7 @@ export default {
 		this.$refs.uForm.setRules(this.rules);
 	},
 	onLoad() {
-		this.getArea();
-		this.addressId = this.$Route.query.id ? this.$Route.query.id : 0;
+		this.addressId = this.$Route.query.id ? this.$Route.query.id : null;
 		uni.setNavigationBarTitle({
 			title: this.addressId ? '编辑收货地址' : '添加收货地址'
 		});
@@ -145,17 +139,11 @@ export default {
 		// 微信导入数据格式
 		wxAddressInit() {
 			let wxAddress = this.$Route.query.addressData; //微信导入
-			this.model.id = 0;
-			this.model.consignee = wxAddress.userName;
+			this.model.name = wxAddress.userName;
 			this.model.phone = wxAddress.telNumber;
-			// #ifdef MP-WEIXIN
-			this.model.area_text = `${wxAddress.provinceName}-${wxAddress.cityName}-${wxAddress.countyName}`;
-			// #endif
-			// #ifdef H5
-			this.model.area_text = `${wxAddress.provinceName}-${wxAddress.cityName}-${wxAddress.countryName}`;
-			// #endif
 			this.model.address = wxAddress.detailInfo.replace(/%20/g, '');
-			this.model.is_default = false;
+			this.model.status = 0;
+			this.model.sex = '1'; // 默认选择先生
 		},
 
 		// 确认省市区
@@ -169,8 +157,8 @@ export default {
 			authState &&
 				uni.chooseLocation({
 					success: res => {
-						this.model.latitude = res.latitude;
-						this.model.longitude = res.longitude;
+						this.model.lat = res.latitude;
+						this.model.ing = res.longitude;
 						this.getLocationInfo();
 					},
 					fail: err => {
@@ -183,15 +171,12 @@ export default {
 		async getLocationInfo() {
 			this.chooseAddress = '定位中...';
 			const [error, res] = await uni.request({
-				url: `https://restapi.amap.com/v3/geocode/regeo?location=${this.model.longitude},${this.model.latitude}&key=${MAP_KEY}`
+				url: `https://restapi.amap.com/v3/geocode/regeo?location=${this.model.ing},${this.model.lat}&key=${MAP_KEY}`
 			});
 			if (res.data.status === '1') {
 				const addressComponent = res.data.regeocode.addressComponent;
 				this.chooseAddress = res.data.regeocode.formatted_address;
-				this.model.area_text = `${addressComponent.province}-${addressComponent.city.length ? addressComponent.city : addressComponent.province}-${
-					addressComponent.district
-				}`;
-				this.model.address = res.data.regeocode.formatted_address.replace(`${addressComponent.province}${addressComponent.city}${addressComponent.district}`, '');
+				this.model.address = res.data.regeocode.formatted_address;
 			} else {
 				console.log('%c逆地址解析失败，请检查是否在env中配置地图key', 'color:green;background:yellow');
 			}
@@ -207,18 +192,34 @@ export default {
 		// 编辑添加地址
 		editAddress() {
 			let that = this;
-			that.$http(
-				'address.edit',
-				{
-					...that.model,
-					id: that.addressId
-				},
-				'保存中...'
-			).then(res => {
-				if (res.code === 1) {
-					that.$Router.back();
-				}
-			});
+			if (!this.addressId) {
+				that.$http(
+					'address.addAddress',
+					{
+						...that.model,
+						status: that.model.status ? 1 : 0  // 转换为数字类型
+					},
+					'保存中...'
+				).then(res => {
+					if (res.code === 1) {
+						that.$Router.back();
+					}
+				});
+			} else {
+				that.$http(
+					'address.amendAddress',
+					{
+						...that.model,
+						id: this.addressId,
+						status: that.model.status ? 1 : 0  // 转换为数字类型
+					},
+					'保存中...'
+				).then(res => {
+					if (res.code === 1) {
+						that.$Router.back();
+					}
+				});
+			}
 		},
 
 		// 地址信息
@@ -230,11 +231,13 @@ export default {
 				if (res.code === 1) {
 					let addressData = res.data;
 					that.addressId = addressData.id;
-					that.model.area_text = `${addressData.province_name}-${addressData.city_name}-${addressData.area_name}`;
-					that.model.is_default = addressData.is_default === '1' ? true : false;
 					that.model.address = addressData.address;
 					that.model.phone = addressData.phone;
-					that.model.consignee = addressData.consignee;
+					that.model.name = addressData.name;
+					that.model.sex = addressData.sex;
+					that.model.lat = addressData.lat;
+					that.model.ing = addressData.ing;
+					that.model.status = addressData.status;
 				}
 			});
 		},

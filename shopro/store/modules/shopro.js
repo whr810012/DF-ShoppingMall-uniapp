@@ -301,46 +301,46 @@ const actions = {
             content: {
               name: "",
               list: [
-                {
-                  name: "商品收藏",
-                  image:
-                    "http://file.shopro.top/uploads/20210518/b726f027bd679f0f5a36c6e301430790.png",
-                  path: "/pages/user/favorite",
-                  path_name: "我的收藏",
-                  path_type: 1,
-                },
-                {
-                  name: "浏览足迹",
-                  image:
-                    "http://file.shopro.top/uploads/20210518/d4e05c1560722ec63fde08e3217d3296.png",
-                  path: "/pages/user/view-log",
-                  path_name: "浏览足迹",
-                  path_type: 1,
-                },
-                {
-                  name: "积分商城",
-                  image:
-                    "http://file.shopro.top/uploads/20210518/234139fd11f6f8451e4c517f256c6b45.png",
-                  path: "/pages/app/score/list",
-                  path_name: "积分商品",
-                  path_type: 1,
-                },
-                {
-                  name: "我的拼团",
-                  image:
-                    "http://file.shopro.top/uploads/20210518/5d53a6e7f940c5ef925f63c1810c8429.png",
-                  path: "/pages/activity/groupon/my-groupon",
-                  path_name: "我的拼团",
-                  path_type: 1,
-                },
-                {
-                  name: "常见问题",
-                  image:
-                    "http://file.shopro.top/uploads/20210518/555ef0a1151e83014610b288e53827c2.png",
-                  path: "/pages/public/faq",
-                  path_name: "常见问题",
-                  path_type: 1,
-                },
+                // {
+                //   name: "商品收藏",
+                //   image:
+                //     "http://file.shopro.top/uploads/20210518/b726f027bd679f0f5a36c6e301430790.png",
+                //   path: "/pages/user/favorite",
+                //   path_name: "我的收藏",
+                //   path_type: 1,
+                // },
+                // {
+                //   name: "浏览足迹",
+                //   image:
+                //     "http://file.shopro.top/uploads/20210518/d4e05c1560722ec63fde08e3217d3296.png",
+                //   path: "/pages/user/view-log",
+                //   path_name: "浏览足迹",
+                //   path_type: 1,
+                // },
+                // {
+                //   name: "积分商城",
+                //   image:
+                //     "http://file.shopro.top/uploads/20210518/234139fd11f6f8451e4c517f256c6b45.png",
+                //   path: "/pages/app/score/list",
+                //   path_name: "积分商品",
+                //   path_type: 1,
+                // },
+                // {
+                //   name: "我的拼团",
+                //   image:
+                //     "http://file.shopro.top/uploads/20210518/5d53a6e7f940c5ef925f63c1810c8429.png",
+                //   path: "/pages/activity/groupon/my-groupon",
+                //   path_name: "我的拼团",
+                //   path_type: 1,
+                // },
+                // {
+                //   name: "常见问题",
+                //   image:
+                //     "http://file.shopro.top/uploads/20210518/555ef0a1151e83014610b288e53827c2.png",
+                //   path: "/pages/public/faq",
+                //   path_name: "常见问题",
+                //   path_type: 1,
+                // },
                 {
                   name: "系统设置",
                   image:
@@ -349,22 +349,22 @@ const actions = {
                   path_name: "系统设置",
                   path_type: 1,
                 },
-                {
-                  name: "分销中心",
-                  image:
-                    "http://file.shopro.top/uploads/20210518/a470b691a09eec29d56e0a55b02f70e0.png",
-                  path: "/pages/app/commission/index",
-                  path_name: "分销中心",
-                  path_type: 1,
-                },
-                {
-                  name: "门店入驻",
-                  image:
-                    "http://file.shopro.top/uploads/20210518/ccb0390403a473d6b019d330bbf6bca4.png",
-                  path: "/pages/app/merchant/apply",
-                  path_name: "门店入驻",
-                  path_type: 1,
-                },
+                // {
+                //   name: "分销中心",
+                //   image:
+                //     "http://file.shopro.top/uploads/20210518/a470b691a09eec29d56e0a55b02f70e0.png",
+                //   path: "/pages/app/commission/index",
+                //   path_name: "分销中心",
+                //   path_type: 1,
+                // },
+                // {
+                //   name: "门店入驻",
+                //   image:
+                //     "http://file.shopro.top/uploads/20210518/ccb0390403a473d6b019d330bbf6bca4.png",
+                //   path: "/pages/app/merchant/apply",
+                //   path_name: "门店入驻",
+                //   path_type: 1,
+                // },
               ],
             },
             decorate_id: 5791,

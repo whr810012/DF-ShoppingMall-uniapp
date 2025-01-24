@@ -426,6 +426,26 @@ export default {
 
 	/** 位置 ↓ **/
 	address: {
+		//   "address": "",
+		// "id": 0,
+		// "ing": "",
+		// "lat": "",
+		// "name": "",
+		// "phone": "",
+		// "sex": "",
+		// "userId": 0
+		addAddress:{
+			url: "address/add",
+			auth: true,
+			method: "POST",
+			// desc: '添加地址',
+		},
+		amendAddress:{
+			url: "address/amend",
+			auth: true,
+			method: "POST",
+			// desc: '修改地址',
+		},
 		area: {
 			url: "address/area",
 			auth: false,
@@ -433,7 +453,7 @@ export default {
 			// desc: '省市区',
 		},
 		list: {
-			url: "address",
+			url: "address/queryAll",
 			auth: true,
 			method: "GET",
 			// desc: '地址列表',
@@ -451,7 +471,7 @@ export default {
 			// desc: '默认地址',
 		},
 		info: {
-			url: "address/info",
+			url: "address/query",
 			auth: true,
 			method: "GET",
 			// desc: '地址详情',

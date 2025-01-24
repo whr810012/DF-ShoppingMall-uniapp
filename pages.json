@@ -839,7 +839,7 @@
 
 					},
 					"meta": {
-						"auth": true,
+						"auth": false,
 						"async": true,
 						"title": "收货地址",
 						"group": "用户"
@@ -852,7 +852,7 @@
 
 					},
 					"meta": {
-						"auth": true,
+						"auth": false,
 						"async": false,
 						"title": "修改地址",
 						"group": "用户"
