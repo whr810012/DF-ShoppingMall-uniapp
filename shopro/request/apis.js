@@ -477,7 +477,7 @@ export default {
 			// desc: '地址详情',
 		},
 		del: {
-			url: "address/del",
+			url: "address/delete",
 			auth: true,
 			method: "POST",
 			// desc: '删除',

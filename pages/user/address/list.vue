@@ -3,12 +3,15 @@
 	<view class="address-wrap">
 		<view class="address-list" v-for="address in addressList" :key="address.id" @tap="useAddress(address)">
 			<view class="top u-flex">
-				<text class="name">{{ address.consignee }}</text>
+				<text class="name">{{ address.name }}</text>
 				<text class="phone">{{ address.phone }}</text>
 				<text class="tag" v-show="address.is_default === '1'">默认</text>
 			</view>
-			<view class="detail">{{ address.province_name }}{{ address.city_name }}{{ address.area_name }}{{ address.address }}</view>
-			<button class="u-reset-button set-btn" @tap.stop="jump('/pages/user/address/edit', { id: address.id })">编辑</button>
+			<view class="detail">{{ address.address }}</view>
+			<view class="btn-group">
+				<button class="u-reset-button set-btn" @tap.stop="jump('/pages/user/address/edit', { id: address.id })">编辑</button>
+				<button class="u-reset-button del-btn" @tap.stop="deleteAddress(address.id)">删除</button>
+			</view>
 		</view>
 
 		<view class="foot_box-wrap safe-area-inset-bottom">
@@ -69,10 +72,32 @@ export default {
 			// #endif
 		},
 		getAddressList() {
-			this.$http('address.list').then(res => {
+			// 传一个userid
+			const userId = uni.getStorageSync('userInfo').id;
+			this.$http('address.list', { user_id: userId }).then(res => {	
 				if (res.code === 1) {
-					this.addressList = res.data || [];
+					this.addressList = res.data || [];		
 					!this.addressList.length && uni.$emit('SELECT_ADDRESS', { addressData: null });
+				}
+			});
+		},
+		// 删除地址
+		deleteAddress(id) {
+			uni.showModal({
+				title: '提示',
+				content: '确定要删除该地址吗？',
+				success: (res) => {
+					if (res.confirm) {
+						this.$http('address.del', { ids: [id] }).then(res => {
+							if (res.code === 1) {
+								uni.showToast({
+									title: '删除成功',
+									icon: 'none'
+								});
+								this.getAddressList();
+							}
+						});
+					}
 				}
 			});
 		}
@@ -116,13 +141,25 @@ export default {
 		line-height: 40rpx;
 	}
 
-	.set-btn {
-		background: none;
+	.btn-group {
 		position: absolute;
-		font-size: 26rpx;
-		color: #a8700d;
 		top: 40rpx;
 		right: 40rpx;
+		display: flex;
+		align-items: center;
+	}
+
+	.set-btn {
+		background: none;
+		font-size: 26rpx;
+		color: #a8700d;
+		margin-right: 20rpx;
+	}
+
+	.del-btn {
+		background: none;
+		font-size: 26rpx;
+		color: #ff5555;
 	}
 }
 
