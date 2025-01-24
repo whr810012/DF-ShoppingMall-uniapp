@@ -1,7 +1,7 @@
 <!-- 地址列表 -->
 <template>
 	<view class="address-wrap">
-		<view class="address-list" v-for="address in addressList" :key="address.id" @tap="useAddress(address)">
+		<view class="address-list" v-for="address in addressList" :key="address.id" @tap.stop="jump('/pages/user/address/edit', { id: address.id })">
 			<view class="top u-flex">
 				<text class="name">{{ address.name }}</text>
 				<text class="phone">{{ address.phone }}</text>
@@ -87,7 +87,7 @@ export default {
 				content: '确定要删除该地址吗？',
 				success: (res) => {
 					if (res.confirm) {
-						this.$http('address.del', { ids: [id] }).then(res => {
+						this.$http('address.del', [id] ).then(res => {
 							if (res.code === 1) {
 								uni.showToast({
 									title: '删除成功',

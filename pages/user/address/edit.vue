@@ -247,9 +247,8 @@ export default {
 			const that = this;
 			that.$http(
 				'address.del',
-				{
-					id: that.addressId
-				},
+				[that.addressId]
+				,
 				'删除中...'
 			).then(res => {
 				if (res.code === 1) {
