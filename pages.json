@@ -721,7 +721,7 @@
 						"navigationBarTitleText": "个人信息"
 					},
 					"meta": {
-						"auth": true,
+						"auth": false,
 						"async": true,
 						"title": "个人信息",
 						"group": "用户"

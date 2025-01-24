@@ -2,10 +2,10 @@
 <template>
 	<view class="personal-wrap">
 		<!-- 个人信息卡片 -->
-		<userinfo-card v-if="userHeadData && userHeadData.style" :scrollTop="scrollTop" :detail="userHeadData" @onShare="onShare"></userinfo-card>
+		<userinfo-card :scrollTop="scrollTop" :detail="userHeadData" @onShare="onShare"></userinfo-card>
 		<!-- 自定义模块 -->
-		<view v-for="(item, index) in userTemplate" :key="item.id">
-			<!-- 轮播 -->
+		<sh-order-card></sh-order-card>
+		<!-- <view v-for="(item, index) in userTemplate" :key="item.id">
 			<sh-banner
 				v-if="item.type === 'banner' && index !== 0"
 				:Px="item.content.x"
@@ -14,23 +14,14 @@
 				:height="item.content.height"
 				:list="item.content.list"
 			></sh-banner>
-			<!-- 滑动宫格 -->
 			<sh-grid-swiper v-if="item.type === 'menu'" :list="item.content.list" :oneRowNum="item.content.style"></sh-grid-swiper>
-			<!-- 广告魔方 -->
 			<sh-adv v-if="item.type === 'adv'" :detail="item.content"></sh-adv>
-			<!-- 推荐商品 -->
 			<sh-hot-goods v-if="item.type === 'goods-list' || item.type === 'goods-group'" :detail="item.content"></sh-hot-goods>
-			<!-- 富文本 -->
 			<sh-richtext v-if="item.type === 'rich-text'" :richId="item.content.id"></sh-richtext>
-			<!-- 功能列表 -->
 			<sh-cell v-if="item.type === 'nav-list'" :list="item.content.list"></sh-cell>
-			<!-- 九宫格列表 -->
 			<sh-grid v-if="item.type === 'grid-list'" :list="item.content.list"></sh-grid>
-			<!-- 钱包 -->
 			<sh-wallet v-if="item.type === 'wallet-card'"></sh-wallet>
-			<!-- 订单卡片 -->
-			<sh-order-card v-if="item.type === 'order-card'"></sh-order-card>
-		</view>
+		</view> -->
 		<!-- copyright -->
 		<view class="copyright-box u-flex-col u-row-center u-col-center u-p-t-80 u-p-b-50" v-if="initShop.copyright">
 			<view class="copyright-text">{{ initShop.copyright[0] }}</view>

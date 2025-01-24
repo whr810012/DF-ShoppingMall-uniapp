@@ -9,63 +9,27 @@
 					fontSize: '40rpx',
 					fontWeight: '500'
 				}" :background="navBackground">
-					<view slot="right" class="u-flex u-row-center u-col-center u-m-r-20" v-if="userOtherData.is_store"
-						@tap="goStore">
-						<button class="u-reset-button merchant-btn">切换商家版</button>
-					</view>
 				</shopro-navbar>
 
 				<view class="user-head u-flex u-row-between">
 					<view class="u-flex">
 						<!-- 个人信息 -->
 						<view class="info-box">
-							<view class="u-flex" @tap="$Router.push('/pages/user/info')">
+							<view class="u-flex" @tap="goUserInfo">
 								<view class="head-img-wrap">
 									<image class="head-img" :src="userInfo.avatar || $IMG_URL + '/imgs/base_avatar.png'"
 										mode="aspectFill"></image>
 									<!-- 同步信息 -->
 									<block v-if="showRefresh">
-										<button @tap.stop="showModal = true"
-											class="u-reset-button u-flex u-row-center u-col-center refresh-btn">
+										<button class="u-reset-button u-flex u-row-center u-col-center refresh-btn">
 											<view class="u-iconfont uicon-reload" style="color: #fff;font-size: 24rpx;">
 											</view>
 										</button>
 									</block>
 								</view>
-								<text class="user-name u-ellipsis-1">{{ userInfo.nickname || '请登录~' }}</text>
+								<text class="user-name u-ellipsis-1">{{ userInfo? userInfo.name || '未设置用户名' : '请登录~' }}</text>
 							</view>
 						</view>
-						<!-- 等级 -->
-						<view v-if="userInfo.group" class="grade-tag tag-box u-flex">
-							<image v-if="userInfo.group.image" class="tag-img" :src="userInfo.group.image" mode="">
-							</image>
-							<text class="tag-title">{{ userInfo.group.name }}</text>
-						</view>
-					</view>
-					<view class="u-flex" v-if="userInfo.nickname">
-						<button class=" u-reset-button code-btn" @tap="onShare"><text
-								class="iconfont icon-qrcode"></text></button>
-					</view>
-				</view>
-			</view>
-		</view>
-		<!-- 绑定手机 -->
-		<view class="notice-box u-flex u-row-between u-p-30"
-			v-if="userInfo.verification && !userInfo.verification.mobile" @tap="bindMobile">
-			<view class="notice-detail">点击绑定手机号，确保账户安全</view>
-			<button class="u-reset-button bindPhone">去绑定</button>
-		</view>
-		<!-- 更新信息 -->
-		<view class="cu-modal" :class="{ show: showModal }" @tap="showModal = false">
-			<view class="cu-dialog" style="width: 600rpx;">
-				<view class="modal-box">
-					<view class="modal-head">提示</view>
-					<view class="modal-content">更新微信信息？</view>
-					<view class="modal-bottom u-flex u-col-center">
-						<button class="u-reset-button modal-btn cancel-btn" :hover-stay-time="100"
-							hover-class="btn-hover" @tap="showModal = false">取消</button>
-						<button class="u-reset-button  modal-btn save-btn" :hover-stay-time="100"
-							hover-class="btn-hover" @tap="refreshWechatUser">确定</button>
 					</view>
 				</view>
 			</view>
@@ -89,7 +53,8 @@ export default {
 			isFixed: false,
 			navBackground: {
 				background: 'none'
-			}
+			},
+			userInfo: {}
 		};
 	},
 	mounted() { },
@@ -108,7 +73,7 @@ export default {
 		}
 	},
 	computed: {
-		...mapGetters(['isLogin', 'userInfo', 'userOtherData']),
+		...mapGetters(['isLogin', 'userOtherData']),
 		showRefresh() {
 			if (this.isLogin) {
 				if (this.platform === 'wxOfficialAccount') {
@@ -126,11 +91,8 @@ export default {
 	},
 	methods: {
 		...mapActions(['getUserInfo', 'showAuthModal']),
-		jump(path, query) {
-			this.$Router.push({
-				path: path,
-				query: query
-			});
+		goUserInfo() {
+			this.$Router.push('/pages/user/info');
 		},
 		// 点击分享
 		onShare() {
@@ -162,6 +124,13 @@ export default {
 		bindMobile() {
 			this.showAuthModal('bindMobile');
 		}
+	},
+	created() {
+		console.log(this.userInfo);
+		this.$http('user.getUserInfo').then(res => {
+			console.log(res.data);
+			this.userInfo = res.data;
+		})
 	}
 };
 </script>

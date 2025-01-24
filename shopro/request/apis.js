@@ -263,6 +263,11 @@ export default {
 	},
 	/** 用户 ↓ **/
 	user: {
+		getUserInfo:{
+			url:'query',
+			auth: true,
+			method: 'GET'
+		},
 		login: {
 			url: "login",
 			auth: false,
@@ -274,7 +279,6 @@ export default {
 			method: "POST",
 			// desc: '账号密码登录',
 		},
-
 		smsLogin: {
 			url: "user/smsLogin",
 			auth: false,
