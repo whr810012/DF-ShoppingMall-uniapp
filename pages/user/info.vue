@@ -156,7 +156,7 @@ export default {
 						sex: that.userData.sex,
 					},
 					header: {
-						'token': uni.getStorageSync("token")
+						'authentication': uni.getStorageSync("token")
 					},
 					success: (uploadRes) => {
 						const res = typeof uploadRes.data === 'string' ? JSON.parse(uploadRes.data) : uploadRes.data;
@@ -181,7 +181,7 @@ export default {
 					method: "POST",
 					header: {
 						'content-type': 'application/x-www-form-urlencoded',
-						'token': uni.getStorageSync("token")
+						'authentication': uni.getStorageSync("token")
 					},
 					data: {
 						name: that.userData.name,
