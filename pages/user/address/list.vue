@@ -5,7 +5,7 @@
 			<view class="top u-flex">
 				<text class="name">{{ address.name }}</text>
 				<text class="phone">{{ address.phone }}</text>
-				<text class="tag" v-show="address.is_default === '1'">默认</text>
+				<text class="tag" v-show="address.status === 1">默认</text>
 			</view>
 			<view class="detail">{{ address.address }}</view>
 			<view class="btn-group">
@@ -73,8 +73,7 @@ export default {
 		},
 		getAddressList() {
 			// 传一个userid
-			const userId = uni.getStorageSync('userInfo').id;
-			this.$http('address.list', { user_id: userId }).then(res => {	
+			this.$http('address.list').then(res => {	
 				if (res.code === 1) {
 					this.addressList = res.data || [];		
 					!this.addressList.length && uni.$emit('SELECT_ADDRESS', { addressData: null });
