@@ -161,15 +161,21 @@ export default {
 
 	/** 商品 ↓ **/
 	goods: {
+		//   "maxPrice": 0,
+  // "minPrice": 0,
+  // "name": "",
+  // "page": 0,
+  // "pageSize": 0,
+  // "sortId": 0
 		goods:{
 			url: 'dity/querylist',
 			auth: true,
 			method: 'POST',
 		},
 		lists: {
-			url: "goods/lists",
-			auth: false,
-			method: "GET",
+			url: "dity/querylist",
+			auth: true,
+			method: "POST",
 			// desc: '商品列表',
 		},
 		seckillList: {

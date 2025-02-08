@@ -239,17 +239,11 @@
 					return;
 				}
 				let confirmGoodsList = {
-					list: [{
-						goods_id: sku.goods_id,
-						goods_num: 1,
-						sku_price_id: sku.id,
-						goods_price: sku.price
-					}],
-					from: 'goods'
+					goods_id: sku.id,
 				};
 				this.addCartGoods(confirmGoodsList).then(res => {
 					if (res.code === 1) {
-						this.$u.toast(res.msg);
+						this.$u.toast('加入购物车成功');
 					}
 				});
 			}

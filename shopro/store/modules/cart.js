@@ -141,7 +141,7 @@ const actions = {
 	}, data) {
 		return new Promise((resolve, reject) => {
 			http('cart.add', {
-				id: data.list[0].sku_price_id
+				id: data.goods_id
 			}).then(res => {
 				res.code === 1 
 				resolve(res)

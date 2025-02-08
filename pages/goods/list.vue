@@ -73,12 +73,15 @@ export default {
 			listParams: {
 				category_id: 0,
 				keywords: '',
-				page: 1
+				page: 1,
+				maxPrice: 0,  // 最高价格
+				minPrice: 0   // 最低价格
 			},
 			loadStatus: 'loadmore', //loadmore-加载前的状态，loading-加载中的状态，nomore-没有更多的状态
 			lastPage: 1,
+			currentSort: '', // 当前排序方式
 
-			// 瀑布流 350-330
+			// 瀑布流
 			addTime: 100, //排序间隙时间
 			leftHeight: 0,
 			rightHeight: 0,
@@ -142,12 +145,69 @@ export default {
 		},
 
 		onFilter(e) {
-			this.listParams.order = e;
-			this.goodsList = [];
+			console.log('接收到的筛选参数:', e);
+			
+			// 处理价格筛选
+			if (e.maxPrice !== undefined) {
+				this.listParams.maxPrice = e.maxPrice;
+			}
+			if (e.minPrice !== undefined) {
+				this.listParams.minPrice = e.minPrice;
+			}
+			
+			// 处理价格排序
+			if (e.priceOrder === 1) {
+				this.currentSort = 'asc';  // 价格升序
+			} else if (e.priceOrder === 2) {
+				this.currentSort = 'desc'; // 价格降序
+			} else {
+				this.currentSort = ''; // 默认排序
+			}
+
+			if (e.sortId) {
+				this.listParams.sortId = e.sortId;
+			}
+			
+			// 重置页码并重新请求数据
 			this.listParams.page = 1;
-			this.lastPage = 1;
+			this.goodsList = [];
 			this.clear();
-			this.$u.debounce(this.getGoodsList);
+			this.getGoodsList();
+		},
+		
+		// 处理排序
+		handleSort() {
+			if (this.currentSort === 'asc' || this.currentSort === 'desc') {
+				this.sortGoodsList();
+			} else {
+				// 默认排序时重新请求数据
+				this.listParams.page = 1;
+				this.getGoodsList();
+			}
+		},
+		
+		// 商品排序方法
+		sortGoodsList() {
+			console.log('按价格排序前:', this.goodsList.map(item => ({price: item.price, title: item.title})));
+			
+			let sortedList = [...this.goodsList];
+			
+			if (this.currentSort === 'asc') {
+				// 价格从低到高
+				sortedList.sort((a, b) => a.price - b.price);
+				console.log('执行升序排序');
+			} else if (this.currentSort === 'desc') {
+				// 价格从高到低
+				sortedList.sort((a, b) => b.price - a.price);
+				console.log('执行降序排序');
+			}
+			
+			this.goodsList = sortedList;
+			console.log('按价格排序后:', this.goodsList.map(item => ({price: item.price, title: item.title})));
+			
+			this.clear();
+			this.tempList = [...this.goodsList];
+			this.splitData();
 		},
 		// 键盘搜索,输入搜索
 		onSearch() {
@@ -176,20 +236,72 @@ export default {
 		getGoodsList() {
 			let that = this;
 			that.loadStatus = 'loading';
-			that.$http('goods.lists', that.listParams, '加载中...').then(res => {
+			
+			// 构建请求参数
+			const params = {
+				name: that.listParams.keywords
+			};
+			
+			// 只有价格不为0时才添加价格参数
+			if (that.listParams.maxPrice > 0) {
+				params.maxPrice = that.listParams.maxPrice;
+			}
+			if (that.listParams.minPrice > 0) {
+				params.minPrice = that.listParams.minPrice;
+			}
+			if (that.listParams.sortId) {
+				params.sortId = that.listParams.sortId;
+			}
+			
+			that.$http('goods.lists', params, '', true, {
+				page: that.listParams.page
+			}).then(res => {
 				if (this.searchVal && !historyTag.includes(this.searchVal)) {
 					let searchHistoryArr = JSON.stringify(this.getArr(historyTag, this.searchVal));
 					uni.setStorageSync('searchHistoryArr', searchHistoryArr);
 				}
 				if (res.code === 1) {
-					that.goodsList = [...that.goodsList, ...res.data.data];
+					// 处理商品数据，将返回的数据格式转换为组件需要的格式
+					const formattedGoods = res.data.records.map(item => {
+						const price = parseFloat((item.price * item.discount/10).toFixed(2));
+						return {
+							id: item.id,
+							title: item.name,
+							price: price,
+							original_price: parseFloat(item.price),
+							sales: item.number,
+							image: item.dityUrl && item.dityUrl.length > 0 ? item.dityUrl[0].avatar : '',
+							subtitle: item.present,
+							activity_discounts_tags: item.discount ? [`${item.discount}折`] : [],
+							createTime: item.createTime,
+							sortId: item.sortId
+						};
+					});
+					
+					// 根据是否是第一页来决定是追加还是重置数据
+					if (that.listParams.page === 1) {
+						that.goodsList = formattedGoods;
+					} else {
+						that.goodsList = [...that.goodsList, ...formattedGoods];
+					}
+					
 					that.isEmpty = !that.goodsList.length;
-					that.lastPage = res.data.last_page;
-					that.loadStatus = that.listParams.page < res.data.last_page ? 'loadmore' : 'nomore';
-					that.tempList = res.data.data;
-					that.splitData();
+					
+					// 如果有排序状态，对所有数据进行排序
+					if (that.currentSort) {
+						console.log('执行排序，当前排序方式:', that.currentSort);
+						that.handleSort();
+					} else {
+						that.tempList = formattedGoods;
+						that.splitData();
+					}
+					
+					// 计算总页数
+					const pageSize = 10;
+					that.lastPage = Math.ceil(res.data.total / pageSize);
+					that.loadStatus = that.listParams.page < that.lastPage ? 'loadmore' : 'nomore';
 				}
-			});
+			})
 		}
 	}
 };

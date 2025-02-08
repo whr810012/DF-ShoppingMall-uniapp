@@ -25,6 +25,7 @@
 				<view class="u-m-b-10 title-box u-p-20 u-skeleton-fillet">
 					<view class="goods-title u-m-b-10 u-ellipsis-2">{{ goodsInfo.title }}</view>
 					<view class="sub-title u-ellipsis-2">{{ goodsInfo.subtitle }}</view>
+					<view class="stock-info">库存: {{ goodsInfo.stock }}</view>
 				</view>
 
 				<!-- 参与的活动 -->
@@ -71,7 +72,7 @@
 
 				<!-- 选项卡 -->
 				<view class="tab-box u-flex">
-					<view class="tab-item u-flex-col u-row-center u-col-center" @tap="onTab(tab.id)" v-for="tab in tabList" :key="tab.id">
+					<view class="tab-item u-flex-col u-row-center u-col-center" @tap="onTab(tab.id)" v-for="tab in filteredTabList" :key="tab.id">
 						<view class="tab-title">
 							{{ tab.title }}
 							<text v-if="tab.id == 'tab2'" class="comment-num">({{ commentNum }})</text>
@@ -110,26 +111,10 @@
 				<view class="detail-foot_box safe-area-inset-bottom  u-flex u-col-ceter u-row-around">
 					<!-- foot左侧 -->
 					<view class="left u-flex">
-						<!-- 积分foot -->
 						<view class="tools-item u-flex-col u-row-center u-col-center" @tap="goHome">
 							<image class="tool-img shopro-selector-circular" src="/static/images/tabbar/tabbar_home1.png" mode=""></image>
 							<text class="tool-title shopro-selector-rect">首页</text>
 						</view>
-						<!-- 非积分foot -->
-						<block v-if="detailType !== 'score'">
-							<view class="tools-item u-flex-col u-row-center u-col-center" @tap="onFavorite(goodsInfo.id)">
-								<image
-									class="tool-img"
-									:src="Boolean(goodsInfo.favorite) ? $IMG_URL + '/imgs/detail/detail_favorite_end.png' : $IMG_URL + '/imgs/detail/detail_favorite.png'"
-									mode=""
-								></image>
-								<text class="tool-title">收藏</text>
-							</view>
-							<view class="tools-item u-flex-col u-row-center u-col-center" @tap="onShare">
-								<image class="tool-img" :src="$IMG_URL + '/imgs/share/share.png'" mode=""></image>
-								<text class="tool-title">分享</text>
-							</view>
-						</block>
 					</view>
 					<!-- foot右侧 -->
 					<view class="detail-right">
@@ -248,10 +233,6 @@ export default {
 					title: '商品详情'
 				},
 				{
-					id: 'tab1',
-					title: '规格参数'
-				},
-				{
 					id: 'tab2',
 					title: '用户评价'
 				}
@@ -269,6 +250,9 @@ export default {
 			let height = systemInfo.platform == 'ios' ? 44 : 48;
 			return height;
 			// #endif
+		},
+		filteredTabList() {
+			return this.tabList.filter(tab => tab.id !== 'tab1');
 		}
 	},
 	async onLoad() {
@@ -290,6 +274,7 @@ export default {
 	},
 
 	methods: {
+		...mapActions(['addCartGoods']),
 		// goBack
 		// 微信直播商品跳转详情，需要用小程序原生接口才能返回。
 		goBack() {
@@ -371,24 +356,28 @@ export default {
 				).then(res => {
 					if (res.code === 1) {
 						that.showEmpty = false;
-						that.goodsInfo = res.data;
-						if (that.goodsInfo.activity_type) {
-							that.activityRules.status = that.goodsInfo.activity.status_code;
-						}
-						share.setShareInfo({
-							title: that.goodsInfo.title,
-							desc: that.goodsInfo.subtitle,
-							image: that.goodsInfo.image,
-							params: {
-								page: 2,
-								pageId: that.$Route.query.id
-							}
-						});
+						// 转换数据结构
+						const rawData = res.data;
+						that.goodsInfo = {
+							id: rawData.id,
+							title: rawData.name,
+							subtitle: rawData.present,
+							price: rawData.price,
+							stock: rawData.number,
+							image: rawData.dityUrl?.[0]?.avatar || '',
+							images: rawData.dityUrl?.map(item => item.avatar) || [],
+							createTime: rawData.createTime,
+							discount: rawData.discount,
+							status: rawData.status,
+							content: rawData.present, // 商品详情
+							activity_type: null, // 没有活动类型
+							is_sku: false, // 默认无规格
+						};
+						
 						that.getCommentList();
-						resolve(res.data);
+						resolve(that.goodsInfo);
 					} else {
 						resolve(false);
-						// that.$u.toast(res.msg);
 						that.showEmpty = true;
 						that.showEmptyText = res.msg;
 					}
@@ -423,12 +412,14 @@ export default {
 		},
 		// 加入购物车
 		addCart() {
-			if (this.isLogin) {
-				this.buyType = 'cart';
-				this.showSku = true;
-			} else {
-				this.$store.dispatch('showAuthModal');
-			}
+			let confirmGoodsList = {
+				goods_id: this.goodsInfo.id,
+			};
+			this.addCartGoods(confirmGoodsList).then(res => {
+				if (res.code === 1) {
+					this.$u.toast('加入购物车成功');
+				}
+			});
 		},
 		// 立即购买
 		goPay() {
@@ -640,6 +631,27 @@ export default {
 		font-size: 24rpx;
 		font-weight: 500;
 		line-height: 42rpx;
+	}
+
+	.price-box {
+		margin-top: 20rpx;
+		.current-price {
+			color: #ff0000;
+			font-size: 36rpx;
+			font-weight: bold;
+			margin-right: 20rpx;
+		}
+		.original-price {
+			color: #999;
+			font-size: 24rpx;
+			text-decoration: line-through;
+		}
+	}
+
+	.stock-info {
+		margin-top: 10rpx;
+		font-size: 24rpx;
+		color: #666;
 	}
 }
 

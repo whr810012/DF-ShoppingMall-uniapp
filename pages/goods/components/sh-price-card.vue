@@ -4,14 +4,12 @@
 		<view class="normal-price-box" v-if="type !== 'score' && !detail.activity">
 			<view class="u-felx u-col-bottom">
 				<text class="unit font-OPPOSANS">￥</text>
-				<text class="price font-OPPOSANS">{{ detail.price }}</text>
+				<text class="price font-OPPOSANS">{{ (detail.price * detail.discount / 10).toFixed(2) }}</text>
 				<text class="notice">优惠价</text>
 			</view>
 			<view class="u-flex u-row-left price-bottom-box">
 				<view class="u-flex">
-					<view class="original-price font-OPPOSANS">原价：￥{{ detail.original_price }}</view>
-					<text class="line"></text>
-					<view class="sold font-OPPOSANS">已售：{{ detail.sales }}件</view>
+					<view class="original-price font-OPPOSANS">原价：￥{{ detail.price }}</view>
 				</view>
 			</view>
 		</view>
