@@ -529,7 +529,7 @@ export default {
 		add: {
 			url: "shopping",
 			auth: true,
-			method: "POST",
+			method: "GET",
 			// desc: '添加购物车',
 		},
 

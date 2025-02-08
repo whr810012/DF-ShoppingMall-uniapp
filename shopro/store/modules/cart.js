@@ -141,8 +141,7 @@ const actions = {
 	}, data) {
 		return new Promise((resolve, reject) => {
 			http('cart.add', {
-				goods_list: data.list,
-				from: data.from
+				id: data.list[0].sku_price_id
 			}).then(res => {
 				res.code === 1 && dispatch('getCartList');
 				resolve(res)
