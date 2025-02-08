@@ -80,17 +80,76 @@
 		data() {
 			return {
 				maxStep: 999,
-				isTool: false
+				isTool: false,
+				cartList: []
 			};
 		},
 		computed: {
-			...mapGetters(['totalCount', 'isSel', 'isActivityPay', 'cartList', 'allSelected', 'authType', 'isLogin']),
+			...mapGetters(['totalCount', 'isSel', 'isActivityPay', 'allSelected', 'authType', 'isLogin']),
 			isEmpty() {
 				return !this.cartList.length;
 			}
 		},
 		onShow() {
-			this.isLogin && this.getCartList();
+			this.cartList = [
+				{
+					id: 1,
+					name: "阿德",
+					discount: null,
+					price: 11,
+					number: 11,
+					present: "博物馆文创新年礼物生日女生养生实用",
+					checked: true,
+					goods: {
+						image: "https://array-shop.oss-cn-hangzhou.aliyuncs.com/45372c05-02fe-4dd4-b4c1-5c3143256dba.jpg",
+						title: "博物馆文创新年礼物生日女生养生实用",
+						id: 1
+					},
+					goods_num: 11,
+					sku_price: {
+						price: 11,
+						stock: 11
+					}
+				},
+				{
+					id: 2,
+					name: "12",
+					discount: null,
+					price: 11,
+					number: 11,
+					present: "生日礼物女生实用高级感闺蜜送女朋友蛇新年会品",
+					checked: true,
+					goods: {
+						image: "https://array-shop.oss-cn-hangzhou.aliyuncs.com/65a7f8cc-40aa-4863-9e9a-e3d4332c48b7.jpg",
+						title: "生日礼物女生实用高级感闺蜜送女朋友蛇新年会品",
+						id: 2
+					},
+					goods_num: 11,
+					sku_price: {
+						price: 11,
+						stock: 11
+					}
+				},
+				{
+					id: 3,
+					name: "13",
+					discount: null,
+					price: 11,
+					number: 11,
+					present: "波司登24春秋新款轻薄鹅绒羽绒服",
+					checked: true,
+					goods: {
+						image: "https://array-shop.oss-cn-hangzhou.aliyuncs.com/45372c05-02fe-4dd4-b4c1-5c3143256dba.jpg",
+						title: "波司登24春秋新款轻薄鹅绒羽绒服",
+						id: 3
+					},
+					goods_num: 11,
+					sku_price: {
+						price: 11,
+						stock: 11
+					}
+				}
+			];
 		},
 		onHide() {
 			this.isTool = false;
@@ -105,18 +164,28 @@
 					confirmColor: '#f0c785',
 					content: `是否确认从购物车中删除此商品?`,
 					success: res => {
-						res.confirm && this.changeCartList({ ids: [g.id], art: 'delete' });
+						if (res.confirm) {
+							// 从本地cartList中删除
+							this.cartList = this.cartList.filter(item => item.id !== g.id);
+						}
 					}
 				});
 			},
+			
 			// 更改商品数
 			async changeNum(e, g) {
 				uni.showLoading({
 					mask: true
 				});
-				e.value > 0 && this.changeCartList({ ids: [g.id], goodsNum: e.value, art: 'change' });
+				if (e.value > 0) {
+					// 更新本地cartList中的数量
+					const index = this.cartList.findIndex(item => item.id === g.id);
+					if (index !== -1) {
+						this.cartList[index].goods_num = e.value;
+						this.cartList[index].number = e.value;
+					}
+				}
 				uni.hideLoading();
-				await this.getCartList();
 			},
 
 			// 单选
@@ -139,48 +208,36 @@
 				that.$store.commit('getAllSellectCartList', that.allSelected); //列表全选
 			},
 
+			// 删除
+			goodsDelete() {
+				let selectedIdsArray = [];
+				this.cartList.forEach(item => {
+					if (item.checked) {
+						selectedIdsArray.push(item.id);
+					}
+				});
+				// 从本地cartList中删除选中的商品
+				this.cartList = this.cartList.filter(item => !selectedIdsArray.includes(item.id));
+			},
+
 			// 结算
 			onPay() {
 				let that = this;
 				let { cartList } = this;
 				if (this.isSel) {
 					let confirmcartList = [];
-					let isActivity = false;
 					for (let item of this.cartList) {
 						if (item.checked) {
-							if (item.cart_type === 'invalid') {
-								this.$u.toast('商品已失效');
-								return false;
-							}
-							if (item.cart_type === 'activity') {
-								isActivity = true;
-							}
 							confirmcartList.push({
-								goods_id: item.goods_id,
-								sku_price_id: item.sku_price_id,
-								goods_price: item.sku_price ? item.sku_price.price : 0,
+								goods_id: item.goods.id,
+								sku_price_id: item.id,
+								goods_price: item.price,
 								goods_num: item.goods_num
 							});
 						}
 					}
-					if (confirmcartList.length > 1 && isActivity) {
-						this.$u.toast('活动商品只能单独购买');
-						return false;
-					}
 					that.jump('/pages/order/confirm', { goodsList: confirmcartList, from: 'cart' });
 				}
-			},
-			// 删除
-			goodsDelete() {
-				let that = this;
-				let { cartList } = this;
-				let selectedIdsArray = [];
-				cartList.map(item => {
-					if (item.checked) {
-						selectedIdsArray.push(item.id);
-					}
-				});
-				this.changeCartList({ ids: selectedIdsArray, art: 'delete' });
 			}
 		}
 	};

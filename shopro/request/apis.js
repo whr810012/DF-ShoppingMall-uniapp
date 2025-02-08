@@ -521,24 +521,31 @@ export default {
 	/** 购物车 ↓ **/
 	cart: {
 		index: {
-			url: "cart",
+			url: "shopping/queryAll",
 			auth: true,
-			method: "POST",
+			method: "GET",
 			// desc: '购物车商品列表',
 		},
 		add: {
-			url: "cart/add",
+			url: "shopping",
 			auth: true,
 			method: "POST",
 			// desc: '添加购物车',
 		},
 
 		edit: {
-			url: "cart/edit",
+			url: "shopping/amend",
 			auth: true,
 			method: "POST",
 			// desc: '编辑购物车',
 		},
+
+		del:{
+			url:"shopping/delete",
+			auth: true,
+			method: "POST",
+			// desc: '删除购物车',
+		}
 	},
 
 	/** 订单 ↓ **/

@@ -30,7 +30,7 @@
 						<!-- 单规格 -->
 						<view class="" v-if="!detail.is_sku">
 							<button class="u-reset-button cart-btn u-flex u-col-center u-row-center"
-								v-if="!isCart(detail.id)" @tap.stop="addCart(detail.sku_price[0])">
+								v-if="!isCart(detail.id)" @tap.stop="addCart(detail)">
 								<view class="u-iconfont uicon-shopping-cart-fill" style="color: #fff;"></view>
 							</button>
 							<view class="num-step" @tap.stop v-else>
@@ -229,7 +229,8 @@
 
 			// 加入购物车
 			addCart(sku) {
-				if (sku.stock <= 0) {
+				console.log(sku)
+				if (sku.number <= 0) {
 					this.$u.toast('库存不足');
 					return;
 				}
