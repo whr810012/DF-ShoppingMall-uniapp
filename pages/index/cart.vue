@@ -39,8 +39,8 @@
 								<view class="order-price-box u-flex u-row-between" @tap.stop>
 									<text
 										class="order-price font-OPPOSANS">￥{{ g.sku_price ? g.sku_price.price : 0 }}</text>
-									<u-number-box :value="g.goods_num" :long-press="false" :min="0" :step="1"
-										:index="index" :max="!g.sku_price ? 0: (g.sku_price.stock > 999 ? 999 : g.sku_price.stock)" @min="onMin(g)"
+									<u-number-box :value="g.number" :long-press="false" :min="1" :step="1"
+										:index="index" :max="999999999999" @min="onMin(g)"
 										@minus="changeNum($event, g)" @plus="changeNum($event, g)"
 										@change="changeNum($event, g)">
 									</u-number-box>
@@ -81,75 +81,68 @@
 			return {
 				maxStep: 999,
 				isTool: false,
-				cartList: []
+				cartList: [],
+				isInitializing: true,
+				allSelected: false  // 添加本地全选状态
 			};
 		},
 		computed: {
-			...mapGetters(['totalCount', 'isSel', 'isActivityPay', 'allSelected', 'authType', 'isLogin']),
+			...mapGetters(['authType', 'isLogin', 'isActivityPay']),
 			isEmpty() {
 				return !this.cartList.length;
+			},
+			// 计算总价和选中数量
+			totalCount() {
+				let totalNum = 0;
+				let totalPrice = 0;
+				this.cartList.forEach(item => {
+					if (item.checked) {
+						totalNum += 1;
+						totalPrice += item.number * item.price;
+					}
+				});
+				return {
+					totalNum,
+					totalPrice
+				};
+			},
+			// 是否有选中的商品
+			isSel() {
+				return this.cartList.some(item => item.checked);
 			}
 		},
 		onShow() {
-			this.cartList = [
-				{
-					id: 1,
-					name: "阿德",
-					discount: null,
-					price: 11,
-					number: 11,
-					present: "博物馆文创新年礼物生日女生养生实用",
-					checked: true,
-					goods: {
-						image: "https://array-shop.oss-cn-hangzhou.aliyuncs.com/45372c05-02fe-4dd4-b4c1-5c3143256dba.jpg",
-						title: "博物馆文创新年礼物生日女生养生实用",
-						id: 1
-					},
-					goods_num: 11,
-					sku_price: {
-						price: 11,
-						stock: 11
-					}
-				},
-				{
-					id: 2,
-					name: "12",
-					discount: null,
-					price: 11,
-					number: 11,
-					present: "生日礼物女生实用高级感闺蜜送女朋友蛇新年会品",
-					checked: true,
-					goods: {
-						image: "https://array-shop.oss-cn-hangzhou.aliyuncs.com/65a7f8cc-40aa-4863-9e9a-e3d4332c48b7.jpg",
-						title: "生日礼物女生实用高级感闺蜜送女朋友蛇新年会品",
-						id: 2
-					},
-					goods_num: 11,
-					sku_price: {
-						price: 11,
-						stock: 11
-					}
-				},
-				{
-					id: 3,
-					name: "13",
-					discount: null,
-					price: 11,
-					number: 11,
-					present: "波司登24春秋新款轻薄鹅绒羽绒服",
-					checked: true,
-					goods: {
-						image: "https://array-shop.oss-cn-hangzhou.aliyuncs.com/45372c05-02fe-4dd4-b4c1-5c3143256dba.jpg",
-						title: "波司登24春秋新款轻薄鹅绒羽绒服",
-						id: 3
-					},
-					goods_num: 11,
-					sku_price: {
-						price: 11,
-						stock: 11
-					}
+			this.isInitializing = true;  // 设置初始化标志
+			this.$http('cart.index').then(res => {
+				if (res.code === 1) {
+					let cartData = res.data.records;
+					cartData = cartData.map(item => ({
+						...item,
+						goods: {
+							image: item.dityUrl?.[0]?.avatar || '',
+							title: item.present,
+							id: item.id
+						},
+						goods_num: item.number,
+						sku_price: {
+							price: item.price,
+							stock: item.number
+						}
+					}));
+					this.cartList = cartData;
+					this.$nextTick(() => {
+						this.cartList.forEach(item => {
+							this.$set(item, 'checked', false);
+						});
+						setTimeout(() => {
+							this.isInitializing = false;  // 初始化完成
+						}, 100);
+					});
 				}
-			];
+			}).catch(e => {
+				console.error(e);
+				this.isInitializing = false;
+			});
 		},
 		onHide() {
 			this.isTool = false;
@@ -165,8 +158,14 @@
 					content: `是否确认从购物车中删除此商品?`,
 					success: res => {
 						if (res.confirm) {
-							// 从本地cartList中删除
-							this.cartList = this.cartList.filter(item => item.id !== g.id);
+							this.$http('cart.del', {
+								id: g.id
+							}).then(res => {
+								if (res.code === 1) {
+									this.$u.toast('删除成功');
+									this.getCartList();
+								}
+							});
 						}
 					}
 				});
@@ -174,23 +173,50 @@
 			
 			// 更改商品数
 			async changeNum(e, g) {
+				// 如果是初始化阶段，不执行更新
+				if (this.isInitializing) return;
+				
+				// 检查数量限制
+				if (e.value <= 0) {
+					this.onMin(g);
+					return;
+				}
+				
+				
+				// 限制最大购买数量为999
+				if (e.value > 999) {
+					this.$u.toast('超出最大购买数量限制');
+					return;
+				}
+				
 				uni.showLoading({
 					mask: true
 				});
-				if (e.value > 0) {
-					// 更新本地cartList中的数量
-					const index = this.cartList.findIndex(item => item.id === g.id);
-					if (index !== -1) {
-						this.cartList[index].goods_num = e.value;
-						this.cartList[index].number = e.value;
+				
+				await this.$http('cart.edit', {
+					id: g.id,
+					number: e.value
+				}).then(res => {
+					if (res.code === 1) {
+						// 更新本地数据
+						const index = this.cartList.findIndex(item => item.id === g.id);
+						if (index !== -1) {
+							this.cartList[index].number = e.value;
+							this.cartList[index].goods_num = e.value;
+						}
+						this.$u.toast('修改成功');
 					}
-				}
+				}).catch(() => {
+					this.$u.toast('修改失败');
+				});
+				
 				uni.hideLoading();
 			},
 
 			// 单选
 			checkboxGroupChange(e) {
-				this.$store.commit('checkCartList');
+				// 检查是否全部选中
+				this.allSelected = this.cartList.every(item => item.checked);
 			},
 
 			// 路由跳转
@@ -203,9 +229,11 @@
 
 			// 全选
 			onAllSel() {
-				let that = this;
-				that.$store.commit('changeAllSellect'); //按钮切换全选。
-				that.$store.commit('getAllSellectCartList', that.allSelected); //列表全选
+				this.allSelected = !this.allSelected;
+				// 更新所有商品的选中状态
+				this.cartList.forEach(item => {
+					item.checked = this.allSelected;
+				});
 			},
 
 			// 删除
@@ -216,8 +244,15 @@
 						selectedIdsArray.push(item.id);
 					}
 				});
-				// 从本地cartList中删除选中的商品
-				this.cartList = this.cartList.filter(item => !selectedIdsArray.includes(item.id));
+				
+				this.$http('cart.del', {
+					ids: selectedIdsArray
+				}).then(res => {
+					if (res.code === 1) {
+						this.$u.toast('删除成功');
+						this.getCartList();
+					}
+				});
 			},
 
 			// 结算
@@ -229,10 +264,10 @@
 					for (let item of this.cartList) {
 						if (item.checked) {
 							confirmcartList.push({
-								goods_id: item.goods.id,
+								goods_id: item.id,
 								sku_price_id: item.id,
 								goods_price: item.price,
-								goods_num: item.goods_num
+								goods_num: item.number
 							});
 						}
 					}
