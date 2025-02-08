@@ -119,7 +119,7 @@
 					cartData = cartData.map(item => ({
 						...item,
 						goods: {
-							image: item.dityUrl?.[0]?.avatar || '',
+							image: item.dityUrls?.[0]?.avatar || '',
 							title: item.present,
 							id: item.id
 						},
@@ -129,6 +129,8 @@
 							stock: item.number
 						}
 					}));
+					console.log(cartData);
+					
 					this.cartList = cartData;
 					this.$nextTick(() => {
 						this.cartList.forEach(item => {
