@@ -143,7 +143,7 @@ const actions = {
 			http('cart.add', {
 				id: data.list[0].sku_price_id
 			}).then(res => {
-				res.code === 1 && dispatch('getCartList');
+				res.code === 1 
 				resolve(res)
 			}).catch(e => {
 				reject(e)

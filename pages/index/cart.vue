@@ -150,8 +150,41 @@
 			this.isTool = false;
 		},
 		methods: {
-			...mapActions(['getCartList', 'changeCartList']),
-
+			...mapActions([ 'changeCartList']),
+			getCartList () {
+				this.$http('cart.index').then(res => {
+				if (res.code === 1) {
+					let cartData = res.data.records;
+					cartData = cartData.map(item => ({
+						...item,
+						goods: {
+							image: item.dityUrls?.[0]?.avatar || '',
+							title: item.present,
+							id: item.id
+						},
+						goods_num: item.number,
+						sku_price: {
+							price: item.price,
+							stock: item.number
+						}
+					}));
+					console.log(cartData);
+					
+					this.cartList = cartData;
+					this.$nextTick(() => {
+						this.cartList.forEach(item => {
+							this.$set(item, 'checked', false);
+						});
+						setTimeout(() => {
+							this.isInitializing = false;  // 初始化完成
+						}, 100);
+					});
+				}
+			}).catch(e => {
+				console.error(e);
+				this.isInitializing = false;
+			});
+			},
 			// 到达最小值
 			onMin(g) {
 				uni.showModal({

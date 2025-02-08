@@ -209,8 +209,8 @@ export default {
 			// desc: '拼团商品列表',
 		},
 		detail: {
-			url: "goods/detail",
-			auth: false,
+			url: "dity/query",
+			auth: true,
 			method: "GET",
 			// desc: '商品详情',
 		},
