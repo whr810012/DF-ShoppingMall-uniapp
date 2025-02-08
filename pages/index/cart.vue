@@ -158,9 +158,9 @@
 					content: `是否确认从购物车中删除此商品?`,
 					success: res => {
 						if (res.confirm) {
-							this.$http('cart.del', {
-								id: g.id
-							}).then(res => {
+							this.$http('cart.del',
+								[g.id]
+							).then(res => {
 								if (res.code === 1) {
 									this.$u.toast('删除成功');
 									this.getCartList();
@@ -245,9 +245,9 @@
 					}
 				});
 				
-				this.$http('cart.del', {
-					ids: selectedIdsArray
-				}).then(res => {
+				this.$http('cart.del', 
+					selectedIdsArray
+				).then(res => {
 					if (res.code === 1) {
 						this.$u.toast('删除成功');
 						this.getCartList();
