@@ -4,6 +4,7 @@
 		<image class="goods_img"  lazy-load fade-show :src="image" mode="aspectFill"></u-image>
 		<view class="u-m-l-20">
 			<view class="goods-title u-ellipsis-2 u-m-b-10">{{ title }}</view>
+			<view class="goods-title u-ellipsis-2 u-m-b-10" style="color: #999999;">{{ present }}</view>
 			<view v-if="subtitle" class="describe-text u-m-b-10 u-ellipsis-1">{{ subtitle }}</view>
 			<slot name="describe"></slot>
 			<slot name="cardBottom">
@@ -40,6 +41,10 @@ export default {
 			default: ''
 		},
 		title: {
+			type: String,
+			default: ''
+		},
+		present: {
 			type: String,
 			default: ''
 		},

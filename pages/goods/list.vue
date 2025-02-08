@@ -164,9 +164,7 @@ export default {
 				this.currentSort = ''; // 默认排序
 			}
 
-			if (e.sortId) {
-				this.listParams.sortId = e.sortId;
-			}
+			this.listParams.sortId = e.sortId;
 			
 			// 重置页码并重新请求数据
 			this.listParams.page = 1;

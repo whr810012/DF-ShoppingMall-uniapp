@@ -43,7 +43,7 @@
 										<view v-if="!item.is_sku">
 											<button v-if="!isCart(item.id)"
 												:style="item.activity_type ? typeMap[item.activity_type].btnBg : ''"
-												@tap.stop="addCart(item.sku_price[0])" class="u-reset-button cart-btn">
+												@tap.stop="addCart(item)" class="u-reset-button cart-btn">
 												加入购物车
 											</button>
 											<view class="num-step" @tap.stop v-else>
@@ -258,16 +258,10 @@ export default {
 
 		// 加入购物车
 		addCart(goods) {
-			let obj = {
-				goods_id: goods.goods_id,
-				goods_num: 1,
-				sku_price_id: goods.id,
-				goods_price: goods.price
-			};
 			let confirmGoodsList = {
-				list: [obj],
-				from: 'goods'
-			};
+					goods_id: goods.id,
+				}
+
 			this.addCartGoods(confirmGoodsList).then(res => {
 				if (res.code === 1) {
 					this.$u.toast(res.msg);

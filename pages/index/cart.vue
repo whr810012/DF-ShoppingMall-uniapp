@@ -27,7 +27,7 @@
 							<view v-if="g.cart_type === 'activity' && !isActivityPay"
 								class="invalid-tips u-flex u-row-center u-col-center">活动商品,仅支持单独购买</view>
 						</view>
-						<shopro-mini-card :image="g.goods.image" :title="g.goods.title"
+						<shopro-mini-card :image="g.goods.image" :title="g.goods.title" :present="g.goods.present"
 							@click="$Router.push({ path: '/pages/goods/detail', query: { id: g.goods.id } })">
 							<template #describe>
 								<view class="order-sku u-ellipsis-1">
@@ -120,7 +120,8 @@
 						...item,
 						goods: {
 							image: item.dityUrls?.[0]?.avatar || '',
-							title: item.present,
+							title: item.name,
+							present: item.present,
 							id: item.id
 						},
 						goods_num: item.number,
@@ -159,7 +160,8 @@
 						...item,
 						goods: {
 							image: item.dityUrls?.[0]?.avatar || '',
-							title: item.present,
+							title: item.name,
+							present: item.present,
 							id: item.id
 						},
 						goods_num: item.number,
