@@ -71,7 +71,7 @@
 				</view>
 
 				<!-- 选项卡 -->
-				<view class="tab-box u-flex">
+				<view class="tab-box u-flex" v-if="!isSeckill">
 					<view class="tab-item u-flex-col u-row-center u-col-center" @tap="onTab(tab.id)" v-for="tab in filteredTabList" :key="tab.id">
 						<view class="tab-title">
 							{{ tab.title }}
@@ -80,7 +80,7 @@
 						<text class="tab-line" :class="{ 'line-active': tabCurrent === tab.id }"></text>
 					</view>
 				</view>
-				<view class="tab-detail u-p-20 u-m-b-10">
+				<view class="tab-detail u-p-20 u-m-b-10" v-if="goodsInfo.id && !isSeckill">
 					<!-- 详情富文本 -->
 					<view class="rich-box " v-if="tabCurrent === 'tab0'"><u-parse :html="goodsInfo.content"></u-parse></view>
 					<!-- 参数 -->
@@ -253,6 +253,13 @@ export default {
 		},
 		filteredTabList() {
 			return this.tabList.filter(tab => tab.id !== 'tab1');
+		},
+		isSeckill(){
+			if (this.goodsInfo && this.goodsInfo.activity && this.goodsInfo.activity.type === 'seckill') {
+				return true;
+			} else {
+				return false;
+			}
 		}
 	},
 	async onLoad() {
@@ -346,42 +353,80 @@ export default {
 		getGoodsDetail() {
 			let that = this;
 			return new Promise((resolve, reject) => {
-				that.$http(
-					'goods.detail',
-					{
+				// 先判断是否是秒杀商品
+				if(that.$Route.query.seckill) {
+					that.$http('seckill.seckillQuery', {
 						id: that.$Route.query.id
-					},
-					'',
-					false
-				).then(res => {
-					if (res.code === 1) {
-						that.showEmpty = false;
-						// 转换数据结构
-						const rawData = res.data;
-						that.goodsInfo = {
-							id: rawData.id,
-							title: rawData.name,
-							subtitle: rawData.present,
-							price: rawData.price,
-							stock: rawData.number,
-							image: rawData.dityUrl?.[0]?.avatar || '',
-							images: rawData.dityUrl?.map(item => item.avatar) || [],
-							createTime: rawData.createTime,
-							discount: rawData.discount,
-							status: rawData.status,
-							content: rawData.present, // 商品详情
-							activity_type: null, // 没有活动类型
-							is_sku: false, // 默认无规格
-						};
-						
-						that.getCommentList();
-						resolve(that.goodsInfo);
-					} else {
-						resolve(false);
-						that.showEmpty = true;
-						that.showEmptyText = res.msg;
-					}
-				});
+					}).then(res => {
+						if (res.code === 1) {
+							that.showEmpty = false;
+							// 转换数据结构
+							const rawData = res.data;
+							that.goodsInfo = {
+								id: rawData.id,
+								title: rawData.name,
+								subtitle: '',  // 秒杀商品没有副标题
+								price: rawData.price,
+								stock: rawData.number,
+								image: rawData.avatar,
+								images: [rawData.avatar], // 秒杀商品只有一张图片
+								createTime: rawData.createTime,
+								status: rawData.status,
+								content: '', // 秒杀商品没有详细描述
+								activity_type: 'seckill',
+								activity: {
+									type: 'seckill',
+									starttime: new Date(rawData.createTime).getTime() / 1000,
+									endtime: new Date(rawData.endTime).getTime() / 1000
+								},
+								is_sku: false,
+								sales: rawData.sales || 0 // 销量
+							};
+							that.getCommentList();
+							resolve(that.goodsInfo);
+						} else {
+							resolve(false);
+							that.showEmpty = true;
+							that.showEmptyText = res.msg;
+						}
+					});
+				} else {
+					that.$http(
+						'goods.detail',
+						{
+							id: that.$Route.query.id
+						},
+						'',
+						false
+					).then(res => {
+						if (res.code === 1) {
+							that.showEmpty = false;
+							// 转换数据结构
+							const rawData = res.data;
+							that.goodsInfo = {
+								id: rawData.id,
+								title: rawData.name,
+								subtitle: rawData.present,
+								price: rawData.price,
+								stock: rawData.number,
+								image: rawData.dityUrl?.[0]?.avatar || '',
+								images: rawData.dityUrl?.map(item => item.avatar) || [],
+								createTime: rawData.createTime,
+								discount: rawData.discount,
+								status: rawData.status,
+								content: rawData.present,
+								activity_type: null,
+								is_sku: false
+							};
+							that.getCommentList();
+							resolve(that.goodsInfo);
+						} else {
+							resolve(false);
+							that.showEmpty = true;
+							that.showEmptyText = res.msg;
+						}
+					});
+				}
 			});
 		},
 		// 商品评论

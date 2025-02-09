@@ -15,7 +15,7 @@
 		</view>
 		<!--b-->
 		<view class="big-goods  u-flex u-p-20 u-col-top u-m-b-16" v-for="item in goodsList"
-			:key="item.id" @tap="jump('/pages/goods/detail', { id: item.id })">
+			:key="item.id" @tap="jump('/pages/goods/detail', { id: item.id, seckill: 1 })">
 			<image class="goods-img" :src="item.image" mode="aspectFill"></image>
 				<view class=" card-right u-m-l-20 u-flex-col u-row-between">
 					<view class="">

@@ -266,6 +266,11 @@ export default {
 			method: "GET",
 			// desc: '秒杀列表',
 		},
+		seckillQuery:{
+			url: 'seckill/user/query',
+			auth: true,
+			method: 'GET',
+		},
 	},
 	/** 用户 ↓ **/
 	user: {

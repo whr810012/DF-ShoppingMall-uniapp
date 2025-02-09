@@ -67,11 +67,6 @@
 				<view class="count-down" v-show="activityRules.status === 'end'">活动已结束</view>
 			</view>
 			<view class="u-flex u-row-between price-bottom-box">
-				<view class="u-flex">
-					<view class="original-price font-OPPOSANS">原价：￥{{ detail.original_price }}</view>
-					<text class="line"></text>
-					<view class="sold font-OPPOSANS">已售：{{ detail.sales }}件</view>
-				</view>
 				<view class="express">
 					<view class="u-flex">
 						<view style="width:100rpx;" v-show="activityRules.status !== 'end'">
