@@ -180,6 +180,45 @@
 			<shopro-share v-model="showShare" :posterInfo="goodsInfo" :posterType="'goods'"></shopro-share>
 			<!-- 登录 -->
 			<shopro-auth-modal v-if="authType"></shopro-auth-modal>
+
+			<!-- 购买弹窗 -->
+			<u-popup v-model="showBuyPopup" mode="bottom" border-radius="20" closeable>
+				<view class="buy-popup">
+					<view class="goods-info u-flex u-p-20">
+						<image class="goods-img" :src="goodsInfo.image" mode="aspectFill"></image>
+						<view class="info-right">
+							<view class="goods-price u-font-bold">￥{{ goodsInfo.price }}</view>
+							<view class="goods-stock">库存: {{ goodsInfo.stock }}件</view>
+						</view>
+					</view>
+
+					<!-- 配送地址 -->
+					<view class="address-box u-p-20" @tap="chooseAddress">
+						<view class="box-title">配送地址</view>
+						<view class="address-content u-flex u-row-between u-col-center u-m-t-20" v-if="addressData.length">
+							<view class="address-info">
+								<view class="user-info">{{ addressData[0].name }} {{ addressData[0].phone }}</view>
+								<view class="address-text u-line-2">{{ addressData[0].address }}</view>
+							</view>
+							<text class="u-iconfont uicon-arrow-right" style="color: #bfbfbf;"></text>
+						</view>
+						<view class="no-address u-flex u-row-between u-col-center" v-else>
+							<text>请选择收货地址</text>
+							<text class="u-iconfont uicon-arrow-right" style="color: #bfbfbf;"></text>
+						</view>
+					</view>
+
+					<view class="num-box u-p-20">
+						<view class="box-title">购买数量</view>
+						<view class="u-flex u-row-between u-col-center u-m-t-20">
+							<u-number-box v-model="buyNum" :min="1" :max="goodsInfo.stock"></u-number-box>
+						</view>
+					</view>
+					<view class="popup-btn-box safe-area-inset-bottom u-p-20">
+						<button class="u-reset-button confirm-btn" @tap="confirmBuy">确定</button>
+					</view>
+				</view>
+			</u-popup>
 		</view>
 	</view>
 </template>
@@ -236,7 +275,10 @@ export default {
 					id: 'tab2',
 					title: '用户评价'
 				}
-			]
+			],
+			showBuyPopup: false, // 购买弹窗显示状态
+			buyNum: 1, // 购买数量
+			addressData: [], // 收货地址列表
 		};
 	},
 	// 是否登录
@@ -466,14 +508,66 @@ export default {
 				}
 			});
 		},
+		// 选择地址
+		chooseAddress() {
+			this.$Router.push({
+				path: '/pages/user/address/list',
+				query: {
+					from: 'goods'
+				}
+			});
+		},
+
+		// 获取默认地址
+		getDefaultAddress() {
+			this.$http('address.list').then(res => {
+				if (res.code === 1) {
+					if(res.data && res.data.length) {
+						// 查找默认地址
+						const defaultAddress = res.data.find(item => item.status === 1);
+						// 如果有默认地址,将其放在数组第一位
+						if(defaultAddress) {
+							this.addressData = [
+								defaultAddress,
+								...res.data.filter(item => item.status !== 1)
+							];
+						} else {
+							this.addressData = res.data;
+						}
+					} else {
+						this.addressData = [];
+					}
+				}
+			});
+		},
+
 		// 立即购买
 		goPay() {
-			if (this.isLogin) {
-				this.buyType = 'buy';
-				this.showSku = true;
-			} else {
-				this.$store.dispatch('showAuthModal');
+			this.getDefaultAddress();
+			this.showBuyPopup = true;
+		},
+
+		// 确认购买
+		confirmBuy() {
+			if (!this.addressData.length) {
+				this.$u.toast('请选择收货地址');
+				return;
 			}
+
+			const data = {
+				addressId: this.addressData[0].id,
+				goodsList: [{
+					id: this.goodsInfo.id,
+					number: this.buyNum
+				}]
+			}
+			this.$http('order.add', data).then(res => {
+				if (res.code === 1) {
+					console.log(res);
+					this.$u.toast('下单成功');
+					this.showBuyPopup = false;
+				}
+			});
 		},
 		// 拼团购买
 		payGroupon(type) {
@@ -823,6 +917,89 @@ export default {
 			background: linear-gradient(90deg, rgba(254, 131, 42, 1), rgba(255, 102, 0, 1));
 			box-shadow: 0px 7rpx 6rpx 0px rgba(255, 104, 4, 0.22);
 			border-radius: 35rpx;
+		}
+	}
+}
+
+// 购买弹窗样式
+.buy-popup {
+	.goods-info {
+		border-bottom: 1rpx solid #f5f5f5;
+		
+		.goods-img {
+			width: 180rpx;
+			height: 180rpx;
+			border-radius: 12rpx;
+		}
+		
+		.info-right {
+			flex: 1;
+			margin-left: 20rpx;
+			
+			.goods-price {
+				font-size: 36rpx;
+				color: #ff0000;
+			}
+			
+			.goods-stock {
+				font-size: 24rpx;
+				color: #999;
+				margin-top: 10rpx;
+			}
+		}
+	}
+	
+	.address-box {
+		border-bottom: 1rpx solid #f5f5f5;
+		
+		.box-title {
+			font-size: 28rpx;
+			color: #333;
+		}
+		
+		.address-content {
+			.address-info {
+				flex: 1;
+				margin-right: 20rpx;
+				
+				.user-info {
+					font-size: 28rpx;
+					color: #333;
+					margin-bottom: 10rpx;
+				}
+				
+				.address-text {
+					font-size: 24rpx;
+					color: #666;
+					line-height: 1.5;
+				}
+			}
+		}
+		
+		.no-address {
+			height: 80rpx;
+			font-size: 28rpx;
+			color: #999;
+		}
+	}
+	
+	.num-box {
+		.box-title {
+			font-size: 28rpx;
+			color: #333;
+		}
+	}
+	
+	.popup-btn-box {
+		.confirm-btn {
+			width: 100%;
+			height: 80rpx;
+			line-height: 80rpx;
+			background: linear-gradient(90deg, rgba(233, 180, 97, 1), rgba(238, 204, 137, 1));
+			box-shadow: 0px 7rpx 6rpx 0px rgba(229, 138, 0, 0.22);
+			border-radius: 40rpx;
+			font-size: 28rpx;
+			color: #fff;
 		}
 	}
 }

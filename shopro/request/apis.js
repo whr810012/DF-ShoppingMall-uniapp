@@ -561,6 +561,12 @@ export default {
 
 	/** 订单 ↓ **/
 	order: {
+		add:{
+			url: "order/add",
+			auth: true,
+			method: "POST",
+			// desc: '添加订单',
+		},
 		index: {
 			url: "order/index",
 			auth: true,
