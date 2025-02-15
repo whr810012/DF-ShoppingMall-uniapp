@@ -69,6 +69,44 @@
 			</view>
 		</view>
 		<!-- <shopro-tabbar></shopro-tabbar> -->
+
+		<!-- 购买弹窗 -->
+		<u-popup v-model="showBuyPopup" mode="bottom" border-radius="20" closeable>
+			<view class="buy-popup">
+				<!-- 配送地址 -->
+				<view class="address-box u-p-20">
+					<view class="box-title">配送地址</view>
+					<view class="address-content u-flex u-row-between u-col-center u-m-t-20" v-if="addressData.length" @tap="chooseAddress">
+						<view class="address-info">
+							<view class="user-info">{{ addressData[0].name }} {{ addressData[0].phone }}</view>
+							<view class="address-text u-line-2">{{ addressData[0].address }}</view>
+						</view>
+						<text class="u-iconfont uicon-arrow-right" style="color: #bfbfbf;"></text>
+					</view>
+					<view class="no-address u-flex u-row-between u-col-center" v-else @tap="chooseAddress">
+						<text>请选择收货地址</text>
+						<text class="u-iconfont uicon-arrow-right" style="color: #bfbfbf;"></text>
+					</view>
+				</view>
+
+				<!-- 商品列表 -->
+				<view class="goods-list u-p-20">
+					<view class="box-title">已选商品</view>
+					<view class="goods-item u-flex u-m-t-20" v-for="(item, index) in selectedGoods" :key="index">
+						<image class="goods-img" :src="item.goods.image" mode="aspectFill"></image>
+						<view class="goods-info">
+							<view class="goods-title u-line-2">{{ item.goods.title }}</view>
+							<view class="goods-price">￥{{ item.price }}</view>
+							<view class="goods-num">x{{ item.number }}</view>
+						</view>
+					</view>
+				</view>
+
+				<view class="popup-btn-box safe-area-inset-bottom u-p-20">
+					<button class="u-reset-button confirm-btn" @tap="confirmOrder">提交订单</button>
+				</view>
+			</view>
+		</u-popup>
 	</view>
 </template>
 
@@ -83,7 +121,10 @@
 				isTool: false,
 				cartList: [],
 				isInitializing: true,
-				allSelected: false  // 添加本地全选状态
+				allSelected: false,  // 添加本地全选状态
+				addressData: [],
+				showBuyPopup: false, // 购买弹窗显示状态
+				selectedGoods: [] // 已选商品列表
 			};
 		},
 		computed: {
@@ -113,6 +154,7 @@
 		},
 		onShow() {
 			this.isInitializing = true;  // 设置初始化标志
+			this.getDefaultAddress(); // 获取默认地址
 			this.$http('cart.index').then(res => {
 				if (res.code === 1) {
 					let cartData = res.data.records;
@@ -294,23 +336,75 @@
 
 			// 结算
 			onPay() {
-				let that = this;
-				let { cartList } = this;
-				if (this.isSel) {
-					let confirmcartList = [];
-					for (let item of this.cartList) {
-						if (item.checked) {
-							confirmcartList.push({
-								goods_id: item.id,
-								sku_price_id: item.id,
-								goods_price: item.price,
-								goods_num: item.number
-							});
+				if (!this.isSel) {
+					this.$u.toast('请选择要结算的商品');
+					return;
+				}
+
+				// 获取选中的商品
+				this.selectedGoods = this.cartList.filter(item => item.checked);
+				
+				// 显示购买弹窗
+				this.showBuyPopup = true;
+			},
+
+			// 确认下单
+			confirmOrder() {
+				if (!this.addressData.length) {
+					this.$u.toast('请选择收货地址');
+					this.chooseAddress();
+					return;
+				}
+
+				const data = {
+					addressId: this.addressData[0].id,
+					goodsList: this.selectedGoods.map(item => ({
+						id: item.id,
+						number: item.number
+					}))
+				}
+
+				this.$http('order.add', data).then(res => {
+					if (res.code === 1) {
+						this.$u.toast('下单成功');
+						this.showBuyPopup = false;
+						this.getCartList(); // 刷新购物车列表
+					}
+				});
+			},
+
+			// 选择地址
+			chooseAddress() {
+				this.$Router.push({
+					path: '/pages/user/address/list',
+					query: {
+						from: 'cart'
+					}
+				});
+			},
+
+			// 获取默认地址
+			getDefaultAddress() {
+				this.$http('address.list').then(res => {
+					if (res.code === 1) {
+						if(res.data && res.data.length) {
+							// 查找默认地址
+							const defaultAddress = res.data.find(item => item.status === 1);
+							// 如果有默认地址,将其放在数组第一位
+							if(defaultAddress) {
+								this.addressData = [
+									defaultAddress,
+									...res.data.filter(item => item.status !== 1)
+								];
+							} else {
+								this.addressData = res.data;
+							}
+						} else {
+							this.addressData = [];
 						}
 					}
-					that.jump('/pages/order/confirm', { goodsList: confirmcartList, from: 'cart' });
-				}
-			}
+				});
+			},
 		}
 	};
 </script>
@@ -495,6 +589,110 @@
 			border-radius: 35rpx;
 			padding: 0;
 			color: rgba(#fff, 0.9);
+		}
+	}
+
+	// 购买弹窗样式
+	.buy-popup {
+		.address-box {
+			border-bottom: 1rpx solid #f5f5f5;
+			
+			.box-title {
+				font-size: 28rpx;
+				color: #333;
+			}
+			
+			.address-content {
+				.address-info {
+					flex: 1;
+					margin-right: 20rpx;
+					
+					.user-info {
+						font-size: 28rpx;
+						color: #333;
+						margin-bottom: 10rpx;
+					}
+					
+					.address-text {
+						font-size: 24rpx;
+						color: #666;
+						line-height: 1.5;
+					}
+				}
+			}
+			
+			.no-address {
+				height: 80rpx;
+				font-size: 28rpx;
+				color: #999;
+			}
+		}
+		
+		.goods-list {
+			border-bottom: 1rpx solid #f5f5f5;
+			
+			.box-title {
+				font-size: 28rpx;
+				color: #333;
+			}
+			
+			.goods-item {
+				margin-bottom: 20rpx;
+				
+				.goods-img {
+					width: 160rpx;
+					height: 160rpx;
+					border-radius: 12rpx;
+					margin-right: 20rpx;
+				}
+				
+				.goods-info {
+					flex: 1;
+					
+					.goods-title {
+						font-size: 26rpx;
+						color: #333;
+						margin-bottom: 10rpx;
+					}
+					
+					.goods-price {
+						font-size: 28rpx;
+						color: #ff0000;
+						font-weight: bold;
+						margin-bottom: 10rpx;
+					}
+					
+					.goods-num {
+						font-size: 24rpx;
+						color: #999;
+					}
+				}
+			}
+		}
+		
+		.popup-btn-box {
+			.total-price {
+				font-size: 28rpx;
+				color: #333;
+				text-align: right;
+				
+				.price {
+					color: #ff0000;
+					font-weight: bold;
+					font-size: 32rpx;
+				}
+			}
+			
+			.confirm-btn {
+				width: 100%;
+				height: 80rpx;
+				line-height: 80rpx;
+				background: linear-gradient(90deg, rgba(233, 180, 97, 1), rgba(238, 204, 137, 1));
+				box-shadow: 0px 7rpx 6rpx 0px rgba(229, 138, 0, 0.22);
+				border-radius: 40rpx;
+				font-size: 28rpx;
+				color: #fff;
+			}
 		}
 	}
 </style>

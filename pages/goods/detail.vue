@@ -304,6 +304,9 @@ export default {
 			}
 		}
 	},
+	async onShow() {
+		this.getDefaultAddress();
+	},
 	async onLoad() {
 		let that = this;
 		this.backIconName = getCurrentPages().length > 1 ? 'arrow-left' : 'home-fill';
