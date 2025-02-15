@@ -164,7 +164,8 @@
 							image: item.dityUrls?.[0]?.avatar || '',
 							title: item.name,
 							present: item.present,
-							id: item.id
+							id: item.id,
+							dity_id: item.dityId
 						},
 						goods_num: item.number,
 						sku_price: {
@@ -355,11 +356,11 @@
 					this.chooseAddress();
 					return;
 				}
-
+				console.log(this.selectedGoods)
 				const data = {
 					addressId: this.addressData[0].id,
 					goodsList: this.selectedGoods.map(item => ({
-						id: item.id,
+						id: item.goods.dity_id,
 						number: item.number
 					}))
 				}
