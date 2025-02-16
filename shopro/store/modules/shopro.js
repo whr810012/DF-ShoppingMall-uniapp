@@ -267,14 +267,14 @@ const actions = {
                   name: "",
                   bgcolor: "#9c100f",
                   image:
-                    "https://demo.shopro.top/uploads/20230922/6b21f96cca4abbdc39a414c201f47ce0.jpg",
+                    "https://tse3-mm.cn.bing.net/th/id/OIP-C.WYfvDjokA0D8Bkd0igcdNAHaDt?rs=1&pid=ImgDetMain",
                   path: "",
                   path_name: "",
                   path_type: 1,
                 },
                 {
                   image:
-                    "https://demo.shopro.top/uploads/20230905/87df098680437b24e89358735734ccfa.png",
+                    "https://img.51miz.com/preview/muban/00/00/38/19/M-381914-EE52D97C.jpg",
                   path: "",
                   path_type: 1,
                   name: "",
