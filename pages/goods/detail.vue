@@ -557,6 +557,12 @@ export default {
 				return;
 			}
 
+			uni.showLoading({
+				title: '正在免密支付中',
+				mask: true
+			});
+
+			const startTime = Date.now();
 			const data = {
 				addressId: this.addressData[0].id,
 				goodsList: [{
@@ -564,13 +570,26 @@ export default {
 					number: this.buyNum
 				}]
 			}
-			this.$http('order.add', data).then(res => {
-				if (res.code === 1) {
-					console.log(res);
-					this.$u.toast('下单成功');
-					this.showBuyPopup = false;
-				}
-			});
+
+			setTimeout(() => {
+				this.$http('order.add', data).then(res => {
+					if (res.code === 1) {
+						const endTime = Date.now();
+						const duration = endTime - startTime;
+						const remainingTime = duration < 2000 ? 2000 - duration : 0;
+						
+						setTimeout(() => {
+							uni.hideLoading();
+							this.$u.toast('下单成功');
+							this.showBuyPopup = false;
+						}, remainingTime);
+					} else {
+						uni.hideLoading();
+					}
+				}).catch(() => {
+					uni.hideLoading();
+				});
+			}, 2000);
 		},
 		// 拼团购买
 		payGroupon(type) {

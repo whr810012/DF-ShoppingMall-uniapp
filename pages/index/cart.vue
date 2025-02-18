@@ -356,7 +356,13 @@
 					this.chooseAddress();
 					return;
 				}
-				console.log(this.selectedGoods)
+				
+				uni.showLoading({
+					title: '正在免密支付中',
+					mask: true
+				});
+
+				const startTime = Date.now();
 				const data = {
 					addressId: this.addressData[0].id,
 					goodsList: this.selectedGoods.map(item => ({
@@ -365,13 +371,34 @@
 					}))
 				}
 
-				this.$http('order.add', data).then(res => {
-					if (res.code === 1) {
-						this.$u.toast('下单成功');
-						this.showBuyPopup = false;
-						this.getCartList(); // 刷新购物车列表
-					}
-				});
+				setTimeout(() => {
+					this.$http('order.add', data).then(res => {
+						if (res.code === 1) {
+							const endTime = Date.now();
+							const duration = endTime - startTime;
+							const remainingTime = duration < 2000 ? 2000 - duration : 0;
+							
+							// 获取要删除的商品ID列表
+							const deleteIds = this.selectedGoods.map(item => item.id);
+							
+							// 删除已购买的商品
+							this.$http('cart.del', deleteIds).then(delRes => {
+								if (delRes.code === 1) {
+									setTimeout(() => {
+										uni.hideLoading();
+										this.$u.toast('下单成功');
+										this.showBuyPopup = false;
+										this.getCartList(); // 刷新购物车列表
+									}, remainingTime);
+								}
+							});
+						} else {
+							uni.hideLoading();
+						}
+					}).catch(() => {
+						uni.hideLoading();
+					});
+				}, 2000);
 			},
 
 			// 选择地址

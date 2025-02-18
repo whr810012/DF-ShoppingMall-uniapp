@@ -264,7 +264,7 @@ export default {
 
 			this.addCartGoods(confirmGoodsList).then(res => {
 				if (res.code === 1) {
-					this.$u.toast(res.msg);
+					this.$u.toast('加入购物车成功');
 				}
 			});
 		},
