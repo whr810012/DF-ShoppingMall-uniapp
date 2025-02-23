@@ -563,16 +563,25 @@ export default {
 			});
 
 			const startTime = Date.now();
-			const data = {
+			let data = {
 				addressId: this.addressData[0].id,
 				goodsList: [{
 					id: this.goodsInfo.id,
 					number: this.buyNum
 				}]
 			}
-
+			if(this.isSeckill) {
+				data = {
+					addressId: this.addressData[0].id,
+					id: this.goodsInfo.id,
+					number: this.buyNum
+				}
+			}
 			setTimeout(() => {
-				this.$http('order.add', data).then(res => {
+				const url = this.isSeckill ? 'seckill.add' : 'order.add';
+				console.log('url::', url);
+				
+				this.$http(url, data).then(res => {
 					if (res.code === 1) {
 						const endTime = Date.now();
 						const duration = endTime - startTime;
@@ -608,8 +617,8 @@ export default {
 
 		// 立即秒杀
 		goSeckill() {
-			!this.isLogin ? this.$store.dispatch('showAuthModal') : (this.showSku = true);
-			this.buyType = 'buy';
+			this.getDefaultAddress();
+			this.showBuyPopup = true;
 		},
 
 		// 收藏

@@ -96,16 +96,10 @@
 						id: 0,
 						title: '全部',
 						type: 'all'
-					},
-					{
+					},{
 						id: 1,
-						title: '待付款',
-						type: 'nopay'
-					},
-					{
-						id: 2,
-						title: '待发货',
-						type: 'nosend'
+						title: '已下单',
+						type: 'pay'
 					},
 					{
 						id: 3,
@@ -116,6 +110,11 @@
 						id: 4,
 						title: '待评价',
 						type: 'nocomment'
+					},
+					{
+						id: 5,
+						title: '退换货',
+						type: 'aftersale'
 					}
 				]
 			};
@@ -150,14 +149,26 @@
 
 			// 订单列表
 			getOrderList() {
+				console.log('this.orderType::', this.orderType);
+				
 				let that = this;
 				that.loadStatus = 'loading';
 				that.$http('order.index', {
-					type: that.orderType,
-					page: that.currentPage
+
 				}, '加载中...').then(res => {
 					if (res.code === 1) {
-						that.orderList = [...that.orderList, ...res.data.data];
+						that.orderList = res.data
+						if (this.orderType === 'all') {
+							that.orderList = that.orderList
+						} else if (this.orderType === 'pay') {
+							that.orderList = that.orderList.filter(item => item.status === 1)
+						} else if (this.orderType === 'noget') {
+							that.orderList = that.orderList.filter(item => item.status === 2)
+						} else if (this.orderType === 'complete') {
+							that.orderList = that.orderList.filter(item => item.status === 3)
+						} else if (this.orderType === 'aftersale') {
+							that.orderList = that.orderList.filter(item => item.status === 4 || item.status === 0)
+						}
 						that.isEmpty = !that.orderList.length;
 						that.lastPage = res.data.last_page;
 						that.loadStatus = that.currentPage < res.data.last_page ? 'loadmore' : 'nomore';

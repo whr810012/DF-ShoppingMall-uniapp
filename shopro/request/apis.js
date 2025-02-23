@@ -267,10 +267,15 @@ export default {
 			// desc: '秒杀列表',
 		},
 		seckillQuery:{
-			url: 'seckill/user/query',
+			url: 'seckill/query',
 			auth: true,
 			method: 'GET',
 		},
+		add:{
+			url: 'seckill/add',
+			auth: true,
+			method: 'POST',
+		}
 	},
 	/** 用户 ↓ **/
 	user: {
@@ -568,7 +573,7 @@ export default {
 			// desc: '添加订单',
 		},
 		index: {
-			url: "order/index",
+			url: "order/queryAll",
 			auth: true,
 			method: "GET",
 			// desc: '订单列表',

@@ -34,7 +34,10 @@
 									<view class="price u-m-r-10">{{ item.price }}</view>
 									<view class="origin-price">{{ item.original_price }}</view>
 								</view>
-								<button class="u-reset-button buy-btn">去抢购</button>
+								<button class="u-reset-button buy-btn" :class="{
+									'btn-end': item.status === 'end',
+									'btn-waiting': item.status === 'waiting'
+								}">{{ getBtnText(item.status) }}</button>
 							</view>
 						</view>
 					</view>
@@ -65,8 +68,12 @@ export default {
 					title: '抢购进行中'
 				},
 				{
-					id: 'nostart',
+					id: 'waiting',
 					title: '即将开始'
+				},
+				{
+					id: 'end',
+					title: '已结束'
 				}
 			]
 		};
@@ -91,8 +98,24 @@ export default {
 				this.getGoodsList();
 			}
 		},
+		getBtnText(status) {
+			switch(status) {
+				case 'ing':
+					return '去抢购';
+				case 'waiting':
+					return '未开始';
+				case 'end':
+					return '已结束';
+				default:
+					return '去抢购';
+			}
+		},
 		toSeckillDetail(id) {
-			this.$Router.push({ path: '/pages/goods/detail', query: { id: id } });
+			// 只有进行中的商品可以跳转详情
+			const item = this.goodsList.find(item => item.id === id);
+			if (item && item.status === 'ing') {
+				this.$Router.push({ path: '/pages/goods/detail', query: { id: id, seckill: 1 } });
+			}
 		},
 		// 加载更多
 		loadMore() {
@@ -106,22 +129,38 @@ export default {
 			let that = this;
 			that.loadStatus = 'loading';
 			that.$http(
-				'goods.seckillList',
-				{
-					type: that.tabCurrent,
-					page: that.currentPage
-				},
-				'加载中...'
+				'seckill.lists'
 			).then(res => {
 				uni.stopPullDownRefresh();
 				if (res.code === 1) {
-					that.goodsList = [...that.goodsList, ...res.data.data];
+					let list = res.data;
+					// 根据状态过滤商品
+					const now = new Date().getTime();
+					list = list.map(item => {
+						const startTime = new Date(item.createTime).getTime();
+						const endTime = new Date(item.endTime).getTime();
+						return {
+							id: item.id,
+							title: item.name,
+							image: item.avatar,
+							price: item.price,
+							original_price: item.price * 1.2, // 原价设置为售价的1.2倍
+							sales: Math.floor(Math.random() * item.number), // 随机生成已售数量
+							stock: item.number,
+							status: now < startTime ? 'waiting' : (now > endTime ? 'end' : 'ing')
+						};
+					});
+
+					// 根据当前tab筛选商品
+					list = list.filter(item => item.status === that.tabCurrent);
+					
+					that.goodsList = [...that.goodsList, ...list];
 					that.goodsList.map(item => {
 						item.percent = item.stock + item.sales > 0 ? ((item.sales / (item.sales + item.stock)) * 100).toFixed(2) : 0;
 					});
 					that.isEmpty = !that.goodsList.length;
-					that.lastPage = res.data.last_page;
-					that.loadStatus = that.currentPage < res.data.last_page ? 'loadmore' : 'nomore';
+					that.lastPage = res.data.last_page || 1;
+					that.loadStatus = that.currentPage < that.lastPage ? 'loadmore' : 'nomore';
 				}
 			});
 		}

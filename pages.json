@@ -497,8 +497,6 @@
 						"navigationBarTitleText": "订单列表"
 					},
 					"meta": {
-						"auth": true,
-						"async": true,
 						"title": "订单列表",
 						"group": "订单"
 					}

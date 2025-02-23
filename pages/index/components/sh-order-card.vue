@@ -9,12 +9,6 @@
 					<view class="badge" v-if="orderNum && orderNum[order.type]">{{ orderNum[order.type] }}</view>
 				</view>
 			</view>
-			<view class="order-item u-flex-col " @tap="jump('/pages/order/after-sale/list')">
-				<view class="u-flex-col item-box u-col-center">
-					<image class="order-img" :src="$IMG_URL + '/imgs/user/tab55.png'" mode=""></image>
-					<text class="item-title">退换货</text>
-				</view>
-			</view>
 		</view>
 
 		<view class="order-item u-flex-col all-order " @tap="jump('/pages/order/list', { type: 'all' })">
@@ -40,16 +34,10 @@ export default {
 			orderNav: [
 				{
 					id: 1,
-					title: '待付款',
+					title: '已下单',
 					img: '/imgs/user/tab11.png',
-					type: 'nopay'
+					type: 'pay'
 				},
-				// {
-				// 	id: 2,
-				// 	title: '待发货',
-				// 	img: this.$IMG_URL + '/imgs/user/tab22.png',
-				// 	type: 'nosend'
-				// },
 				{
 					id: 3,
 					title: '待收货',
@@ -61,13 +49,13 @@ export default {
 					title: '待评价',
 					img: '/imgs/user/tab44.png',
 					type: 'nocomment'
+				},
+				{
+					id: 5,
+					title: '退换货',
+					img: '/imgs/user/tab55.png',
+					type: 'aftersale'
 				}
-				// {
-				// 	id: 5,
-				// 	title: '退换货',
-				// 	img: this.$IMG_URL + '/imgs/user/tab55.png',
-				// 	type: 'aftersale'
-				// }
 			]
 		};
 	},
