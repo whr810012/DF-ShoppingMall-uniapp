@@ -566,6 +566,12 @@ export default {
 
 	/** 订单 ↓ **/
 	order: {
+		evaluate:{
+			url: "shopEvaluate/add",
+			auth: true,
+			method: "POST",
+			// desc: '评价订单',
+		},
 		add:{
 			url: "order/add",
 			auth: true,
@@ -609,7 +615,7 @@ export default {
 			// desc: '确认收货',
 		},
 		cancel: {
-			url: "order/cancel",
+			url: "order/refund",
 			auth: true,
 			method: "POST",
 			// desc: '取消订单',
@@ -849,6 +855,8 @@ export default {
 			// desc: '佣金记录',
 		}
 	}
+
+
 
 
 };
