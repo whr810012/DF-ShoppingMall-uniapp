@@ -545,7 +545,7 @@ export default {
 		add: {
 			url: "shopping",
 			auth: true,
-			method: "GET",
+			method: "POST",
 			// desc: '添加购物车',
 		},
 
