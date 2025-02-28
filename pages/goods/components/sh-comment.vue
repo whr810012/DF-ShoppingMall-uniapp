@@ -2,13 +2,12 @@
 	<view class="comment-box">
 		<view class="head u-flex u-row-between">
 			<view class="u-flex">
-				<image class="avatar" :src="comment.user ? comment.user.avatar : $IMG_URL + '/imgs/base_avatar.png'" mode="aspectFill"></image>
-				<view class="user-name u-ellipsis-1">{{ comment.user ? comment.user.nickname : '***' }}</view>
-				<u-rate :value="comment.level" disabled></u-rate>
+				<image class="avatar" :src="comment.avatar" mode="aspectFill"></image>
+				<view class="user-name u-ellipsis-1">{{ comment.userName }}</view>
 			</view>
 			<text class="time">{{ $u.timeFormat(comment.createtime, 'yyyy-mm-dd hh:MM') }}</text>
 		</view>
-		<view class="detail">{{ comment.content }}</view>
+		<view class="detail">{{ comment.evaluate }}</view>
 		<view class="img-box u-flex u-row-center u-col-center">
 			<view class="nav u-flex u-flex-wrap">
 				<image

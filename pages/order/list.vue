@@ -48,7 +48,9 @@
 
 											order.status === 3 ? '已完成' :
 
-												order.status === 4 ? '已申请退款' : '未知状态' }}
+												order.status === 4 ? '已申请退款' :
+
+												 order.status === 5 ? '已评价' : '未知状态' }}
 
 							</text>
 

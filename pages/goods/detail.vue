@@ -94,7 +94,9 @@
 					</view>
 					<!-- 评价 -->
 					<view class="goods-comment" v-if="tabCurrent === 'tab2'">
-						<block v-for="comment in commentList" :key="comment.id"><sh-comment :comment="comment"></sh-comment></block>
+						<block v-for="comment in commentList" :key="comment.id">
+							<sh-comment :comment="comment"></sh-comment>
+							</block>
 						<shopro-empty v-show="!commentList.length" marginTop="20rpx" :image="$IMG_URL + '/imgs/empty/comment_empty.png'" tipText="暂无评价~"></shopro-empty>
 						<view class="more-box u-flex u-row-center u-col-center" v-show="commentNum > 3">
 							<button class="u-reset-button more-btn u-flex u-row-center u-col-center" @tap="jump('/pages/goods/comment/comment-list', { goodsId: goodsInfo.id })">
@@ -463,7 +465,8 @@ export default {
 								activity_type: null,
 								is_sku: false
 							};
-							that.getCommentList();
+							that.commentList = res.data.evaluate;
+							that.commentNum = res.data.evaluate.length;
 							resolve(that.goodsInfo);
 						} else {
 							resolve(false);
@@ -477,16 +480,6 @@ export default {
 		// 商品评论
 		getCommentList() {
 			let that = this;
-			that.$http('goods.commentList', {
-				goods_id: that.goodsInfo.id,
-				per_page: 3,
-				type: 'all'
-			}).then(res => {
-				if (res.code === 1) {
-					that.commentList = res.data.data;
-					that.commentNum = res.data.total;
-				}
-			});
 		},
 		// 组件返回的type;
 		changeType(e) {
