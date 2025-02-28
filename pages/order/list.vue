@@ -527,7 +527,28 @@ export default {
 
 
 		onReview(orderId) {
-
+			// 弹窗有一个输入框
+			uni.showModal({
+				title: '评价',
+				editable: true, // 允许输入
+				placeholderText: '请输入您的评价', // 输入框的占位符
+				success: res => {
+					if (res.confirm) {
+						console.log('用户点击了确定，输入的内容为：', res.content);
+						this.$http('order.evaluate',{
+							evaluate:res.content,
+							orderId:orderId
+						},'评价中...').then(res=>{
+							if(res.code===1){
+								this.$u.toast('评价成功');
+								this.getOrderList();
+							}
+						})
+					} else if (res.cancel) {
+						console.log('用户点击了取消');
+					}
+				}
+			});
 			console.log('评价', orderId);
 
 		},
@@ -593,8 +614,7 @@ export default {
 
 
 		.line-active {
-
-			color: #007aff;
+			background: #007aff;
 		}
 
 	}
@@ -833,10 +853,7 @@ export default {
 
 
 
-			&:hover {
-
-
-			}
+			&:hover {}
 
 		}
 
