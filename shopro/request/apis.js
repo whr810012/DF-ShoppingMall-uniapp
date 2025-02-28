@@ -543,7 +543,7 @@ export default {
 			// desc: '购物车商品列表',
 		},
 		add: {
-			url: "shopping",
+			url: "shopping/add",
 			auth: true,
 			method: "POST",
 			// desc: '添加购物车',
