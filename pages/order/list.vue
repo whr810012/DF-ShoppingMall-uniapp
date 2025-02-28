@@ -72,7 +72,7 @@
 
 							<view class="order-content">
 
-								<shopro-mini-card :title="goods.name" :image="getAvatar(goods.shopId, order.dityUrls)">
+								<shopro-mini-card :title="goods.name" :image="order.dityUrls.length ? getAvatar(goods.shopId, order.dityUrls) : order.seckills[0].phone">
 
 									<template #describe>
 
